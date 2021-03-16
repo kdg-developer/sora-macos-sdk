@@ -129,6 +129,26 @@ public struct SignalingClientMetadata {
     
 }
 
+public struct AuthnMetadata {
+  public var decoder: Decoder
+}
+
+extension AuthnMetadata: Decodable {
+  public init(from decoder: Decoder) throws {
+      self.decoder = decoder
+  }
+}
+
+public struct AuthzMetadata {
+  public var decoder: Decoder
+}
+
+extension AuthzMetadata: Decodable {
+  public init(from decoder: Decoder) throws {
+      self.decoder = decoder
+  }
+}
+
 /**
  "connect" シグナリングメッセージを表します。
  このメッセージはシグナリング接続の確立後、最初に送信されます。
@@ -402,6 +422,12 @@ public struct SignalingNotifyConnection {
     /// メタデータのリスト
     public var metadataList: [SignalingClientMetadata]?
     
+    /// 認証メタデータ
+    public var authnMetadata: AuthnMetadata?
+  
+    /// 認証メタデータ
+    public var authzMetadata: AuthzMetadata?
+  
     // MARK: 接続状態
     
     /// 接続時間
@@ -908,6 +934,8 @@ extension SignalingNotifyConnection: Codable {
         case video
         case metadata
         case metadata_list
+        case authn_metadata
+        case authz_metadata
         case minutes
         case channel_connections
         case channel_upstream_connections
@@ -929,6 +957,8 @@ extension SignalingNotifyConnection: Codable {
         metadataList =
             try container.decodeIfPresent([SignalingClientMetadata].self,
                                           forKey: .metadata_list)
+        authnMetadata = try container.decodeIfPresent(AuthnMetadata.self, forKey: .authn_metadata)
+        authzMetadata = try container.decodeIfPresent(AuthzMetadata.self, forKey: .authz_metadata)
         connectionTime = try container.decode(Int.self, forKey: .minutes)
         connectionCount =
             try container.decode(Int.self, forKey: .channel_connections)
