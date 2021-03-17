@@ -126,6 +126,12 @@ public struct SignalingClientMetadata {
     
     /// メタデータ
     public var metadata: SignalingMetadata
+  
+    /// 認証メタデータ
+    public var authnMetadata: AuthnMetadata?
+    
+    /// 認証メタデータ
+    public var authzMetadata: AuthzMetadata?
     
 }
 
@@ -420,7 +426,7 @@ public struct SignalingNotifyConnection {
     public var metadata: SignalingMetadata?
     
     /// メタデータのリスト
-    public var metadataList: [SignalingClientMetadata]?
+    public var data: [SignalingClientMetadata]?
     
     /// 認証メタデータ
     public var authnMetadata: AuthnMetadata?
@@ -624,6 +630,8 @@ extension SignalingClientMetadata: Decodable {
         case client_id
         case connection_id
         case metadata
+        case authn_metadata
+        case authz_metadata
     }
     
     public init(from decoder: Decoder) throws {
@@ -632,6 +640,8 @@ extension SignalingClientMetadata: Decodable {
             clientId = try container.decodeIfPresent(String.self, forKey: .client_id)
             connectionId = try container.decodeIfPresent(String.self, forKey: .connection_id)
             metadata = try container.decode(SignalingMetadata.self, forKey: .metadata)
+            authnMetadata = try container.decodeIfPresent(AuthnMetadata.self, forKey: .authn_metadata)
+            authzMetadata = try container.decodeIfPresent(AuthzMetadata.self, forKey: .authz_metadata)
         } catch {
             metadata = try SignalingMetadata(from: decoder)
         }
@@ -933,7 +943,7 @@ extension SignalingNotifyConnection: Codable {
         case audio
         case video
         case metadata
-        case metadata_list
+        case data
         case authn_metadata
         case authz_metadata
         case minutes
@@ -954,9 +964,9 @@ extension SignalingNotifyConnection: Codable {
         videoEnabled = try container.decodeIfPresent(Bool.self, forKey: .video)
         metadata = try container.decodeIfPresent(SignalingMetadata.self,
                                                  forKey: .metadata)
-        metadataList =
+        data =
             try container.decodeIfPresent([SignalingClientMetadata].self,
-                                          forKey: .metadata_list)
+                                          forKey: .data)
         authnMetadata = try container.decodeIfPresent(AuthnMetadata.self, forKey: .authn_metadata)
         authzMetadata = try container.decodeIfPresent(AuthzMetadata.self, forKey: .authz_metadata)
         connectionTime = try container.decode(Int.self, forKey: .minutes)
