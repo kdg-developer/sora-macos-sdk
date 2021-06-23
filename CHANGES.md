@@ -9,16 +9,10 @@
 - FIX
     - バグ修正
 
-## develop
+## 2020.7.2
 
-- [CHANGE] WebRTC M88 に対応する
+- [FIX] SignalingConnect に clientId が漏れていたので追加する
     - @enm10k
-- [CHANGE] スポットライトのオプションを整理する
-    - @enm10k
-    - Sora のスポットライトレガシー機能を利用するための API を Sora.useSpotlightLegacy() に変更
-    - Configuration.activeSpeakerLimit を非推奨にして、 Configuration.spotlightNumber に変更
-
-
 
 ## 2020.7.1
 
