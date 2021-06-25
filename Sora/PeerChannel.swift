@@ -439,6 +439,9 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
     
     weak var channel: BasicPeerChannel!
     var state: State = .disconnected
+    
+    // connect() の成功後は必ずセットされるので nil チェックを省略する
+    // connect() 実行前は nil なのでアクセスしないこと
     var nativeChannel: RTCPeerConnection!
     var internalState: PeerChannelInternalState!
     
@@ -485,15 +488,26 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         Logger.debug(type: .peerChannel, message: "try connecting")
         Logger.debug(type: .peerChannel, message: "try connecting to signaling channel")
         
-        // このロックは finishConnecting() で解除される
-        lock.lock()
-        onConnectHandler = handler
-        
         self.webRTCConfiguration = channel.configuration.webRTCConfiguration
         nativeChannel = NativePeerChannelFactory.default
             .createNativePeerChannel(configuration: webRTCConfiguration,
                                      constraints: webRTCConfiguration.constraints,
                                      delegate: self)
+        guard nativeChannel != nil else {
+            let message = "createNativePeerChannel failed"
+            Logger.debug(type: .peerChannel, message: message)
+            handler(SoraError.peerChannelError(reason: message))
+            return
+        }
+        
+        // このロックは finishConnecting() で解除される
+        lock.lock()
+        onConnectHandler = handler
+
+        // サイマルキャストを利用する場合は、 RTCPeerConnection の生成前に WrapperVideoEncoderFactory を設定する必要がある
+        // また、 (非レガシーな) スポットライトはサイマルキャストを利用しているため、同様に設定が必要になる
+        WrapperVideoEncoderFactory.shared.simulcastEnabled = configuration.simulcastEnabled || (!Sora.isSpotlightLegacyEnabled && configuration.spotlightEnabled == .enabled)
+
         internalState = PeerChannelInternalState(
             signalingState: PeerChannelSignalingState(
                 nativeValue: nativeChannel.signalingState),
@@ -554,7 +568,7 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         
         state = .waitingOffer
         var role: SignalingRole!
-        var multistream = configuration.multistreamEnabled
+        var multistream = configuration.multistreamEnabled || configuration.spotlightEnabled == .enabled
         switch configuration.role {
         case .publisher, .sendonly:
             role = .sendonly
@@ -572,9 +586,10 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         
         var webRTCVersion: String?
         if let info = WebRTCInfo.load() {
-            webRTCVersion = "Shiguredo-build M\(info.version) (\(info.version).\(info.commitPosition).\(info.maintenanceVersion) \(info.shortRevision))"
+            webRTCVersion = "Shiguredo-build \(info.version) (\(info.version).\(info.commitPosition).\(info.maintenanceVersion) \(info.shortRevision))"
         }
         
+        let simulcast = configuration.simulcastEnabled || (!Sora.isSpotlightLegacyEnabled && configuration.spotlightEnabled == .enabled)
         let connect = SignalingConnect(
             role: role,
             channelId: configuration.channelId,
@@ -594,7 +609,9 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
             audioBitRate: configuration.audioBitRate,
             spotlightEnabled: configuration.spotlightEnabled,
             spotlightNumber: configuration.spotlightNumber,
-            simulcastEnabled: configuration.simulcastEnabled,
+            spotlightFocusRid: configuration.spotlightFocusRid,
+            spotlightUnfocusRid: configuration.spotlightUnfocusRid,
+            simulcastEnabled: simulcast,
             simulcastRid: configuration.simulcastRid,
             soraClient: soraClient,
             webRTCVersion: webRTCVersion,
@@ -785,6 +802,10 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
             
             let message = Signaling.update(SignalingUpdate(sdp: answer!))
             self.signalingChannel.send(message: message)
+            
+            if (self.configuration.isSender) {
+                self.updateSenderOfferEncodings()
+            }
             
             // Answer 送信後に RTCPeerConnection の状態に変化はないため、
             // Answer を送信したら更新完了とする

@@ -1,5 +1,6 @@
 # [Unofficial] Sora macOS SDK
 
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Sora macOS SDK は **非公式な** [WebRTC SFU Sora](https://sora.shiguredo.jp) の macOS クライアントアプリケーションを開発するためのライブラリです。
@@ -18,11 +19,11 @@ Please read https://github.com/shiguredo/oss before use.
 ## システム条件
 
 - macOS 10.15 以降
-- アーキテクチャ x86_64
+- アーキテクチャ x86_64 / arm64
 - Xcode 12.0
 - Swift 5.3
 - CocoaPods 1.9.3 以降
-- WebRTC SFU Sora 2020.3 以降
+- WebRTC SFU Sora 2021.1 以降
 
 Xcode と Swift のバージョンによっては、  CocoaPods で取得できるバイナリに互換性がない可能性があります。詳しくはドキュメントを参照してください。
 
@@ -31,8 +32,8 @@ Xcode と Swift のバージョンによっては、  CocoaPods で取得でき�
 Apache License 2.0
 
 ```
-Copyright 2017-2020, SUZUKI Tetsuya (Original Author)
-Copyright 2017-2020, Shiguredo Inc.
+Copyright 2017-2021, SUZUKI Tetsuya (Original Author)
+Copyright 2017-2021, Shiguredo Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

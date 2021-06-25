@@ -6,8 +6,7 @@ private let descriptionTable: PairTable<String, VideoCodec> =
                       ("VP8", .vp8),
                       ("VP9", .vp9),
                       ("H264", .h264),
-                      ("H265", .h265)
-              ])
+                      ("AV1", .av1)])
 
 /**
  映像コーデックを表します。
@@ -28,10 +27,9 @@ public enum VideoCodec {
     
     /// H.264
     case h264
-  
-    /// H.265
-    case h265
     
+    /// AV1
+    case av1
 }
 
 extension VideoCodec: CustomStringConvertible {
