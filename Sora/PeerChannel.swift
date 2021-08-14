@@ -715,23 +715,21 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         case .ping(let ping):
             let pong = SignalingPong()
             if ping.statisticsEnabled == true {
-//                nativeChannel.statistics { report in
-//                    var json: [String: Any] = ["type": "pong"]
-//                    let stats = Statistics(contentsOf: report)
-//                    json["stats"] = stats.jsonObject
-//                    do {
-//                        let data = try JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted])
-//                        if let message = String(data: data, encoding: .utf8) {
-//                            self.signalingChannel.send(text: message)
-//                        } else {
-//                            self.signalingChannel.send(message: .pong(pong))
-//                        }
-//                    } catch {
-//                        self.signalingChannel.send(message: .pong(pong))
-//                    }
-//                }
-                // TODO: 一旦pongだけを返す
-                signalingChannel.send(message: .pong(pong))
+              nativeChannel.statistics { report in
+                  var json: [String: Any] = ["type": "pong"]
+                  let stats = Statistics(contentsOf: report)
+                  json["stats"] = stats.jsonObject
+                  do {
+                      let data = try JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted])
+                      if let message = String(data: data, encoding: .utf8) {
+                          self.signalingChannel.send(text: message)
+                      } else {
+                          self.signalingChannel.send(message: .pong(pong))
+                      }
+                  } catch {
+                      self.signalingChannel.send(message: .pong(pong))
+                  }
+              }
             } else {
                 signalingChannel.send(message: .pong(pong))
             }
