@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.dependency "WebRTC", '92.4515.9.1.3'
   s.dependency "Starscream", "3.1.1"
   s.pod_target_xcconfig = {
-    'ARCHS' => 'arm64',
+    'ARCHS' => 'arm64 x86_64',
     'ARCHS[config=Debug]' => '$(ARCHS_STANDARD)'
   }
 end
