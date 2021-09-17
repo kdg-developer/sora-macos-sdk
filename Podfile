@@ -5,6 +5,6 @@ platform :osx, '10.15'
 
 target 'Sora' do
   use_frameworks!
-  pod 'WebRTC', '92.4515.9.1.6'
+  pod 'WebRTC', '93.4577.8.0.1'
   pod 'Starscream', '3.1.1'
 end
