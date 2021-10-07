@@ -17,7 +17,7 @@ class WrapperVideoEncoderFactory: NSObject, RTCVideoEncoderFactory {
     var simulcastEnabled = false
 
     override init() {
-        // Sora iOS SDK では VP8, VP9, H.264 が有効
+        // Sora macOS SDK では VP8, VP9, H.264 が有効
         defaultEncoderFactory = RTCDefaultVideoEncoderFactory()
 //        simulcastEncoderFactory = RTCVideoEncoderFactorySimulcast(primary: defaultEncoderFactory, fallback: defaultEncoderFactory)
     }

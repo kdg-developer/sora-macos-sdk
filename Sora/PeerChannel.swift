@@ -329,11 +329,13 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         super.init()
         lock.context = self
         
-        signalingChannel.internalHandlers.onDisconnect = { error in
-            self.disconnect(error: error)
+        signalingChannel.internalHandlers.onDisconnect = { [weak self] error in
+            self?.disconnect(error: error)
         }
         
-        signalingChannel.internalHandlers.onReceive = handle
+        signalingChannel.internalHandlers.onReceive = { [weak self] signaling in
+            self?.handle(signaling: signaling)
+        }
     }
     
     func connect(handler: @escaping (Error?) -> Void) {
@@ -366,7 +368,9 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         // また、 (非レガシーな) スポットライトはサイマルキャストを利用しているため、同様に設定が必要になる
         WrapperVideoEncoderFactory.shared.simulcastEnabled = configuration.simulcastEnabled || (!Sora.isSpotlightLegacyEnabled && configuration.spotlightEnabled == .enabled)
         
-        signalingChannel.connect(handler: sendConnectMessage)
+        signalingChannel.connect { [weak self] error in
+            self?.sendConnectMessage(error: error)
+        }
         state = .connecting
     }
     
@@ -426,12 +430,9 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
             multistream = true
         }
         
-        let soraClient = "Sora macOS SDK \(SDKInfo.shared.version) (\(SDKInfo.shared.shortRevision))"
+        let soraClient = "Sora macOS SDK \(SDKInfo.version)"
         
-        var webRTCVersion: String?
-        if let info = WebRTCInfo.load() {
-            webRTCVersion = "Shiguredo-build \(info.version) (\(info.version).\(info.commitPosition).\(info.maintenanceVersion) \(info.shortRevision))"
-        }
+        let webRTCVersion = "Shiguredo-build \(WebRTCInfo.version) (\(WebRTCInfo.version).\(WebRTCInfo.commitPosition).\(WebRTCInfo.maintenanceVersion) \(WebRTCInfo.shortRevision))"
         
         let simulcast = configuration.simulcastEnabled || (!Sora.isSpotlightLegacyEnabled && configuration.spotlightEnabled == .enabled)
         let connect = SignalingConnect(
@@ -482,46 +483,53 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
             let position = configuration.cameraSettings.position
             
             // position に対応した CameraVideoCapturer を取得する
-            guard position != .unspecified else {
+            let capturer: CameraVideoCapturer
+            switch position {
+            case .front:
+                guard let front = CameraVideoCapturer.front else {
+                    Logger.error(type: .peerChannel, message: "front camera is not found")
+                    return
+                }
+                capturer = front
+            case .back:
+                guard let back = CameraVideoCapturer.back else {
+                    Logger.error(type: .peerChannel, message: "back camera is not found")
+                    return
+                }
+                capturer = back
+            case .unspecified:
                 Logger.error(type: .peerChannel, message: "CameraSettings.position should not be .unspecified")
                 return
+            @unknown default:
+                guard let device = CameraVideoCapturer.device(for: position) else {
+                    Logger.error(type: .peerChannel, message: "device is not found for position")
+                    return
+                }
+                capturer = CameraVideoCapturer(device: device)
             }
-            let capturer = position == .front ? CameraVideoCapturer.front : CameraVideoCapturer.back
-        
-            if let device = CameraVideoCapturer.device(for: position) {
-                // デバイスに対応したフォーマットとフレームレートを取得する
-                guard let format = CameraVideoCapturer.format(width: configuration.cameraSettings.resolution.width,
-                                                              height: configuration.cameraSettings.resolution.height,
-                                                              for: device) else {
-                    Logger.error(type: .peerChannel, message: "CameraVideoCapturer.suitableFormat failed: suitable format rate is not found")
-                    return
-                }
-                
-                guard let frameRate = CameraVideoCapturer.maxFrameRate(configuration.cameraSettings.frameRate, for: format) else {
-                    Logger.error(type: .peerChannel, message: "CameraVideoCapturer.suitableFormat failed: suitable frame rate is not found")
-                    return
-                }
-                
-                if CameraVideoCapturer.current != nil && CameraVideoCapturer.current!.isRunning {
-                    // CameraVideoCapturer.current を停止してから capturer を start する
-                    CameraVideoCapturer.current!.stop() { (error: Error?) in
-                        guard error == nil else {
-                            Logger.debug(type: .peerChannel,
-                                         message: "CameraVideoCapturer.stop failed =>  \(error!)")
-                            return
-                        }
 
-                        capturer.start(format: format,
-                              frameRate: frameRate) { (error: Error?) in
-                            guard error == nil else {
-                                Logger.debug(type: .peerChannel,
-                                             message: "CameraVideoCapturer.start failed =>  \(error!)")
-                                return
-                            }
-                            capturer.stream = stream
-                        }
+            // デバイスに対応したフォーマットとフレームレートを取得する
+            guard let format = CameraVideoCapturer.format(width: configuration.cameraSettings.resolution.width,
+                                                          height: configuration.cameraSettings.resolution.height,
+                                                          for: capturer.device) else {
+                Logger.error(type: .peerChannel, message: "CameraVideoCapturer.suitableFormat failed: suitable format rate is not found")
+                return
+            }
+
+            guard let frameRate = CameraVideoCapturer.maxFrameRate(configuration.cameraSettings.frameRate, for: format) else {
+                Logger.error(type: .peerChannel, message: "CameraVideoCapturer.suitableFormat failed: suitable frame rate is not found")
+                return
+            }
+
+            if CameraVideoCapturer.current != nil && CameraVideoCapturer.current!.isRunning {
+                // CameraVideoCapturer.current を停止してから capturer を start する
+                CameraVideoCapturer.current!.stop() { (error: Error?) in
+                    guard error == nil else {
+                        Logger.debug(type: .peerChannel,
+                                     message: "CameraVideoCapturer.stop failed =>  \(error!)")
+                        return
                     }
-                } else {
+
                     capturer.start(format: format, frameRate: frameRate) { error in
                         guard error == nil else {
                             Logger.debug(type: .peerChannel,
@@ -534,10 +542,16 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
                     }
                 }
             } else {
-                // 起動可能なデバイスが存在しない場合
-                // iPhone/iPad であればここに来ない
-                Logger.debug(type: .peerChannel,
-                             message: "video capturer is not found")
+                capturer.start(format: format, frameRate: frameRate) { error in
+                    guard error == nil else {
+                        Logger.debug(type: .peerChannel,
+                                     message: "CameraVideoCapturer.start failed =>  \(error!)")
+                        return
+                    }
+                    Logger.debug(type: .peerChannel,
+                                 message: "set CameraVideoCapturer to sender stream")
+                    capturer.stream = stream
+                }
             }
         }
         
@@ -699,6 +713,37 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         }
     }
     
+    func createAndSendReAnswer(forReOffer reOffer: String) {
+        Logger.debug(type: .peerChannel, message: "create and send re-answer")
+        lock.lock()
+        createAnswer(isSender: false,
+                     offer: reOffer,
+                     constraints: webRTCConfiguration.nativeConstraints)
+        { answer, error in
+            guard error == nil else {
+                Logger.error(type: .peerChannel,
+                             message: "failed to create re-answer (\(error!.localizedDescription)")
+                self.lock.unlock()
+                self.disconnect(error: SoraError
+                    .peerChannelError(reason: "failed to create re-answer"))
+                return
+            }
+            
+            let message = Signaling.reAnswer(SignalingReAnswer(sdp: answer!))
+            self.signalingChannel.send(message: message)
+            
+            if (self.configuration.isSender) {
+                self.updateSenderOfferEncodings()
+            }
+            
+            Logger.debug(type: .peerChannel, message: "call onUpdate")
+            self.channel.internalHandlers.onUpdate?(answer!)
+            self.channel.handlers.onUpdate?(answer!)
+            
+            self.lock.unlock()
+        }
+    }
+    
     func handle(signaling: Signaling) {
         Logger.debug(type: .mediaStream, message: "handle signaling => \(signaling.typeName())")
         switch signaling {
@@ -711,7 +756,9 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
             if configuration.isMultistream {
                 createAndSendUpdateAnswer(forOffer: update.sdp)
             }
-            
+        case .reOffer(let reOffer):
+            createAndSendReAnswer(forReOffer: reOffer.sdp)
+
         case .ping(let ping):
             let pong = SignalingPong()
             if ping.statisticsEnabled == true {

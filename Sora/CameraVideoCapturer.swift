@@ -24,16 +24,28 @@ public final class CameraVideoCapturer {
     }
  
     /// 利用可能なデバイスのリスト
-    /// RTCCameraVideoCapturer.captureDevices を返す
+    /// RTCCameraVideoCapturer.captureDevices を返します。
     public static var devices: [AVCaptureDevice] {
         get { return RTCCameraVideoCapturer.captureDevices() }
     }
     
     /// 前面のカメラに対応するデバイス
-    public private(set) static var front: CameraVideoCapturer = CameraVideoCapturer(device: device(for: .front) ?? nil)
+    public private(set) static var front: CameraVideoCapturer? = {
+        if let device = device(for: .front) {
+            return CameraVideoCapturer(device: device)
+        } else {
+            return nil
+        }
+    }()
 
     /// 背面のカメラに対応するデバイス
-    public private(set) static var back: CameraVideoCapturer = CameraVideoCapturer(device: device(for: .back) ?? nil)
+    public private(set) static var back: CameraVideoCapturer? = {
+        if let device = device(for: .back) {
+            return CameraVideoCapturer(device: device)
+        } else {
+            return nil
+        }
+    }()
 
     /// 起動中のデバイス
     public private(set) static var current: CameraVideoCapturer?
@@ -43,14 +55,14 @@ public final class CameraVideoCapturer {
         get { return native.captureSession }
     }
 
-    /// 指定したカメラ位置にマッチした最初のデバイスを返す
+    /// 指定したカメラ位置にマッチした最初のデバイスを返します。
     /// 名称が device に変更されました
     @available(*, unavailable, renamed: "device")
     public static func captureDevice(for position: AVCaptureDevice.Position) -> AVCaptureDevice? {
         return nil
     }
-    /// 指定したカメラ位置にマッチした最初のデバイスを返す
-    /// captureDevice(for: .back) とすれば背面カメラを取得できる
+    /// 指定したカメラ位置にマッチした最初のデバイスを返します。
+    /// captureDevice(for: .back) とすれば背面カメラを取得できます。
     public static func device(for position: AVCaptureDevice.Position) -> AVCaptureDevice? {
         for device in CameraVideoCapturer.devices {
             switch (device.position, position) {
@@ -69,7 +81,7 @@ public final class CameraVideoCapturer {
         return nil
     }
     
-    /// 指定された設定に最も近い  AVCaptureDevice.Format? を返す
+    /// 指定された設定に最も近い  AVCaptureDevice.Format? を返します。
     public static func format(width: Int32, height: Int32, for device: AVCaptureDevice) -> AVCaptureDevice.Format? {
         let formats = RTCCameraVideoCapturer.supportedFormats(for: device)
         var currentFormat: AVCaptureDevice.Format? = nil
@@ -91,8 +103,8 @@ public final class CameraVideoCapturer {
         return nil
     }
     
-    /// 指定された FPS 値をサポートしているレンジが存在すれば、その値を返す
-    /// 存在しない場合はサポートされているレンジの中で最大の値を返す
+    /// 指定された FPS 値をサポートしているレンジが存在すれば、その値を返します。
+    /// 存在しない場合はサポートされているレンジの中で最大の値を返します。
     public static func maxFrameRate(_ frameRate: Int, for format: AVCaptureDevice.Format) -> Int? {
         if format.videoSupportedFrameRateRanges.contains(where: { Int($0.minFrameRate) <= frameRate && frameRate <= Int($0.maxFrameRate) }) {
             return frameRate
@@ -102,27 +114,26 @@ public final class CameraVideoCapturer {
             .map { Int($0.maxFrameRate) }
     }
     
-    /// 引数に指定された capturer を停止し、反対の position を持つ CameraVideoCapturer を起動します
-    /// CameraVideoCapturer の起動には、 capturer と近い設定のフォーマットとフレームレートが利用されます
-    /// また、起動された CameraVideoCapturer には capturer の保持する MediaStream が設定されます
+    /// 引数に指定された capturer を停止し、反対の position を持つ CameraVideoCapturer を起動します。
+    /// CameraVideoCapturer の起動には、 capturer と近い設定のフォーマットとフレームレートが利用されます。
+    /// また、起動された CameraVideoCapturer には capturer の保持する MediaStream が設定されます。
     public static func flip(_ capturer: CameraVideoCapturer, completionHandler: @escaping ((Error?) -> Void)) {
-        guard capturer.device != nil else {
-            completionHandler(SoraError.cameraError(reason: "device should not be nil"))
-            return
-        }
-        
         guard capturer.format != nil else {
             completionHandler(SoraError.cameraError(reason: "format should not be nil"))
             return
         }
         
-        // 反対の position を持つ CameraVideoCapturer を取得する
-        let flip: CameraVideoCapturer = capturer.device!.position == .front ? .back : .front
+        // 反対の position を持つ CameraVideoCapturer を取得します。
+        guard let flip: CameraVideoCapturer = (capturer.device.position == .front ? .back : .front) else {
+            let name = capturer.device.position == .front ? "back" : "front"
+            completionHandler(SoraError.cameraError(reason: "\(name) camera is not found"))
+            return
+        }
         
         let dimension = CMVideoFormatDescriptionGetDimensions(capturer.format!.formatDescription)
         guard let format = CameraVideoCapturer.format(width: dimension.width,
                                                       height: dimension.height,
-                                                      for: flip.device!) else {
+                                                      for: flip.device) else {
             completionHandler(SoraError.cameraError(reason: "CameraVideoCapturer.format failed: suitable format is not found"))
             return
         }
@@ -154,8 +165,9 @@ public final class CameraVideoCapturer {
     
     /// カメラが起動中であれば ``true``
     public private(set) var isRunning: Bool = false
+
     /// イベントハンドラ
-    public var handlers: CameraVideoCapturerHandlers = CameraVideoCapturerHandlers()
+    public static var handlers: CameraVideoCapturerHandlers = CameraVideoCapturerHandlers()
     
     /// カメラの設定
     /// 廃止されました
@@ -163,8 +175,9 @@ public final class CameraVideoCapturer {
     public private(set) var settings: Any?
     
     /// カメラの位置
-    @available(*, unavailable, message: "position は廃止されました。 現在利用されているデバイスは CameraVideoCapturer.current?.device?.position で取得してください。")
-    public var position: AVCaptureDevice.Position? = nil
+    public var position: AVCaptureDevice.Position {
+        device.position
+    }
 
     /// 使用中のカメラの位置に対応するデバイス
     /// captureDevice に変更されました
@@ -176,7 +189,7 @@ public final class CameraVideoCapturer {
     }
     
     /// 使用中のデバイス
-    public var device: AVCaptureDevice?
+    public var device: AVCaptureDevice
     
     /// フレームレート
     public private(set) var frameRate: Int?
@@ -191,7 +204,10 @@ public final class CameraVideoCapturer {
     private var native: RTCCameraVideoCapturer!
     private var nativeDelegate: CameraVideoCapturerDelegate!
     
-    public init(device: AVCaptureDevice?) {
+    /// 引数に指定した device を利用して CameraVideoCapturer を初期化します。
+    /// 自動的に初期化される静的プロパティ、 front/back を定義しています。
+    /// 上記以外のデバイスを利用したい場合のみ CameraVideoCapturer を生成してください。
+    public init(device: AVCaptureDevice) {
         self.device = device
         nativeDelegate = CameraVideoCapturerDelegate(cameraVideoCapturer: self)
         native = RTCCameraVideoCapturer(delegate: nativeDelegate)
@@ -217,11 +233,6 @@ public final class CameraVideoCapturer {
             return
         }
         
-        guard let device = device else {
-            completionHandler(SoraError.cameraError(reason: "device is not initialized"))
-            return
-        }
-        
         native.startCapture(with: device,
                             format: format,
                             fps: frameRate) { [self] (error: Error?) in
@@ -237,7 +248,7 @@ public final class CameraVideoCapturer {
             isRunning = true
             CameraVideoCapturer.current = self
             completionHandler(nil)
-            handlers.onStart?()
+            CameraVideoCapturer.handlers.onStart?(self)
         }
     }
     
@@ -263,16 +274,12 @@ public final class CameraVideoCapturer {
             isRunning = false
             CameraVideoCapturer.current = nil
             completionHandler(nil)
-            handlers.onStop?()
+            CameraVideoCapturer.handlers.onStop?(self)
         }
     }
     
-    /// カメラを再起動します
+    /// 停止前と同じ設定でカメラを再起動します。
     public func restart(completionHandler: @escaping ((Error?) -> Void)) {
-        guard isRunning else {
-            completionHandler(SoraError.cameraError(reason: "isRunning should be true"))
-            return
-        }
         
         guard let format = self.format else {
             completionHandler(SoraError.cameraError(reason: "failed to access format"))
@@ -284,12 +291,25 @@ public final class CameraVideoCapturer {
             return
         }
         
-        stop() { [self] (error: Error?) in
-            guard error == nil else {
-                completionHandler(error)
-                return
-            }
+        if isRunning {
+            stop() { [self] (error: Error?) in
+                guard error == nil else {
+                    completionHandler(error)
+                    return
+                }
 
+                start(format: format,
+                      frameRate: frameRate) { (error: Error?) in
+                    guard error == nil else {
+                        completionHandler(error)
+                        return
+                    }
+                    
+                    Logger.debug(type: .cameraVideoCapturer, message: "succeeded to restart")
+                    completionHandler(nil)
+                }
+            }
+        } else {
             start(format: format,
                   frameRate: frameRate) { (error: Error?) in
                 guard error == nil else {
@@ -303,7 +323,7 @@ public final class CameraVideoCapturer {
         }
     }
 
-    /// カメラを停止後、指定されたパラメーターで起動します
+    /// カメラを停止後、指定されたパラメーターで起動します。
     public func change(format: AVCaptureDevice.Format? = nil, frameRate: Int? = nil, completionHandler: @escaping ((Error?) -> Void)) {
         guard isRunning else {
             completionHandler(SoraError.cameraError(reason: "isRunning should be true"))
@@ -450,7 +470,7 @@ private class CameraVideoCapturerDelegate: NSObject, RTCVideoCapturerDelegate {
     
     func capturer(_ capturer: RTCVideoCapturer, didCapture nativeFrame: RTCVideoFrame) {
         let frame = VideoFrame.native(capturer: capturer, frame: nativeFrame)
-        if let editedFrame = cameraVideoCapturer.handlers.onCapture?(frame) {
+        if let editedFrame = CameraVideoCapturer.handlers.onCapture?(cameraVideoCapturer, frame) {
             cameraVideoCapturer.stream?.send(videoFrame: editedFrame)
         } else {
             cameraVideoCapturer.stream?.send(videoFrame: frame)
@@ -479,4 +499,27 @@ extension CameraSettings.Resolution: Codable {
         try resolutionTable.encode(self, to: encoder)
     }
     
+}
+
+
+/**
+ CameraVideoCapturer のイベントハンドラです。
+ */
+public class CameraVideoCapturerHandlers {
+    
+    /// 生成された映像フレームを受け取ります。
+    /// 返した映像フレームがストリームに渡されます。
+    public var onCapture: ((CameraVideoCapturer, VideoFrame) -> VideoFrame)?
+
+    /// CameraVideoCapturer.start(format:frameRate:completionHandler) 内で completionHandler の後に実行されます。
+    /// そのため、 CameraVideoCapturer.restart(completionHandler) のように、 stop の completionHandler で start を実行する場合、
+    /// イベントハンドラは onStart, onStop の順に呼び出されることに注意してください。
+    public var onStart: ((CameraVideoCapturer) -> Void)?
+    
+    /// CameraVideoCapturer.stop(completionHandler) 内で completionHandler の後に実行されます。
+    /// 注意点については、 onStart のコメントを参照してください。
+    public var onStop: ((CameraVideoCapturer) -> Void)?
+    
+    /// CameraVideoCapturer のイベントハンドラを初期化します。
+    public init() {}
 }

@@ -9,11 +9,29 @@
 - FIX
     - バグ修正
 
-## develop
+## 2021.2.1
 
+- [FIX] Swift Package Manager に対応するためバージョニングを修正
+    - @miosakuma
+
+## 2021.2
+
+- [UPDATE] Swift Package Manager に対応する
+    - @miosakuma @enm10k
+- [UPDATE] WebRTC 93.4577.8.0 に上げる
+    - @miosakuma
 - [UPDATE] システム条件を変更する
     - iOS 12.1 以降
     - @miosakuma
+- [UPDATE] Starscream のバージョンを 4.0.4 に更新する
+    - @szktty @enm10k
+- [UPDATE] シグナリング・メッセージ re-offer, re-answer に対応する
+    - @enm10k
+- [UPDATE] AES-GCM を有効にする
+    - @enm10k
+- [UPDATE] SoraDispatcher を追加する
+    - libwebrtc 内部で利用されているディスパッチ・キューをラップし、 SDK のユーザーから利用しやすくした
+    - @szktty @enm10k
 - [CHANGE] 接続開始時のカメラ・デバイスを指定可能にする
     - `Configuration.cameraSettings.position` に `.front` または `.back` を設定して、接続開始時のカメラ・デバイスを指定します
     - この修正に伴い、以下の API が変更されました
@@ -28,6 +46,8 @@
     - @szktty @enm10k
 - [FIX] 接続、切断の検知に RTCPeerConnectionState を参照する
     - @enm10k
+- [FIX] 接続終了後に MediaChannel のメモリが解放されずに残り続ける事象を修正する
+    - @szktty
 
 ## 2021.1
 
