@@ -3,7 +3,7 @@
 import PackageDescription
 import Foundation
 
-let file = "WebRTC-94.4606.3.3.1/WebRTC.xcframework.zip"
+let file = "WebRTC-94.4606.4.0.1/WebRTC.xcframework.zip"
 
 let package = Package(
     name: "Sora",
