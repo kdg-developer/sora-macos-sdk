@@ -124,6 +124,7 @@
 		C5D3C7411F7CEB18004660F5 /* VideoCapturerDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCapturerDevice.swift; sourceTree = "<group>"; };
 		CC46962892C75D5922B5021C /* Pods-Sora.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sora.debug.xcconfig"; path = "Target Support Files/Pods-Sora/Pods-Sora.debug.xcconfig"; sourceTree = "<group>"; };
 		DB8E8DF8F248703940A43857 /* Pods_Sora.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sora.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEC504F236D758A3FFB715D9 /* Pods-Sora.debug-arm64.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sora.debug-arm64.xcconfig"; path = "Target Support Files/Pods-Sora/Pods-Sora.debug-arm64.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +153,7 @@
 				CC46962892C75D5922B5021C /* Pods-Sora.debug.xcconfig */,
 				209AF58E6396888E024D2813 /* Pods-Sora.release.xcconfig */,
 				90AB720D64A7C9A4B3B8F48E /* Pods-Sora.debug-x86_64.xcconfig */,
+				FEC504F236D758A3FFB715D9 /* Pods-Sora.debug-arm64.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
