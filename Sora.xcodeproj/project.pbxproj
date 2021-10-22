@@ -47,8 +47,6 @@
 		91CDC1ED23166A5300C3A31E /* DeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CDC1EC23166A5200C3A31E /* DeviceInfo.swift */; };
 		91FA6F211D93CA9800D38DB4 /* VideoFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FA6F201D93CA9800D38DB4 /* VideoFrame.swift */; };
 		91FD95751DCA06F700047BA9 /* RTC+Description.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FD95741DCA06F700047BA9 /* RTC+Description.swift */; };
-		9BEA29CB270F4ED9009FA1FE /* x86_64.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9BEA29CA270F4ED9009FA1FE /* x86_64.xcconfig */; };
-		9BEA29D1270F51D5009FA1FE /* arm64.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9BEA29D0270F51D5009FA1FE /* arm64.xcconfig */; };
 		C5D3C7421F7CEB18004660F5 /* VideoCapturerDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D3C7411F7CEB18004660F5 /* VideoCapturerDevice.swift */; };
 /* End PBXBuildFile section */
 
@@ -318,7 +316,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0900;
-				LastUpgradeCheck = 1200;
+				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = "Shiguredo Inc.";
 				TargetAttributes = {
 					91C7B0881D54636A006F5FA2 = {
@@ -357,8 +355,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9BEA29CB270F4ED9009FA1FE /* x86_64.xcconfig in Resources */,
-				9BEA29D1270F51D5009FA1FE /* arm64.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
