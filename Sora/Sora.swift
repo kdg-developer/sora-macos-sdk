@@ -4,7 +4,7 @@ import WebRTC
 
 /// `Sora` オブジェクトのイベントハンドラです。
 public final class SoraHandlers {
-    
+
     /// このプロパティは onConnect に置き換えられました。
     @available(*, deprecated, renamed: "onConnect",
     message: "このプロパティは onConnect に置き換えられました。")
@@ -12,7 +12,7 @@ public final class SoraHandlers {
         get { onConnect }
         set { onConnect = newValue }
     }
-    
+
     /// このプロパティは onDisconnect に置き換えられました。
     @available(*, deprecated, renamed: "onDisconnect",
     message: "このプロパティは onDisconnect に置き換えられました。")
@@ -20,7 +20,7 @@ public final class SoraHandlers {
            get { onDisconnect }
            set { onDisconnect = newValue }
        }
-    
+
     /// このプロパティは onAddMediaChannel に置き換えられました。
     @available(*, deprecated, renamed: "onAddMediaChannel",
     message: "このプロパティは onAddMediaChannel に置き換えられました。")
@@ -28,7 +28,7 @@ public final class SoraHandlers {
            get { onAddMediaChannel }
            set { onAddMediaChannel = newValue }
        }
-    
+
     /// このプロパティは onRemoveMediaChannel に置き換えられました。
     @available(*, deprecated, renamed: "onRemoveMediaChannel",
     message: "このプロパティは onRemoveMediaChannel に置き換えられました。")
@@ -36,22 +36,22 @@ public final class SoraHandlers {
            get { onRemoveMediaChannel }
            set { onRemoveMediaChannel = newValue }
        }
-    
+
     /// 接続成功時に呼ばれるクロージャー
     public var onConnect: ((MediaChannel?, Error?) -> Void)?
-    
+
     /// 接続解除時に呼ばれるクロージャー
     public var onDisconnect: ((MediaChannel, Error?) -> Void)?
-    
+
     /// メディアチャネルが追加されたときに呼ばれるクロージャー
     public var onAddMediaChannel: ((MediaChannel) -> Void)?
-    
+
     /// メディアチャネルが除去されたときに呼ばれるクロージャー
     public var onRemoveMediaChannel: ((MediaChannel) -> Void)?
 
     /// 初期化します。
     public init() {}
-    
+
 }
 
 /**
@@ -59,20 +59,20 @@ public final class SoraHandlers {
  `Sora` オブジェクトを使用してサーバーへの接続を行います。
  */
 public final class Sora {
-    
+
     // MARK: - SDK の操作
-    
+
     private static let isInitialized: Bool = {
         initialize()
         return true
     }()
-    
+
     private static func initialize() {
         Logger.debug(type: .sora, message: "initialize SDK")
         RTCInitializeSSL()
         RTCEnableMetrics()
     }
-    
+
     /**
      SDK の終了処理を行います。
      アプリケーションの終了と同時に SDK の使用を終了する場合、
@@ -83,7 +83,7 @@ public final class Sora {
         RTCShutdownInternalTracer()
         RTCCleanupSSL()
     }
-    
+
     /**
      ログレベル。指定したレベルより高いログは出力されません。
      デフォルトは `info` です。
@@ -96,29 +96,29 @@ public final class Sora {
             Logger.shared.level = newValue
         }
     }
-    
+
     /// スポットライトレガシー機能を有効化する
     @available(*, deprecated,
     message: "Sora のスポットライトレガシー機能は 2021 年 12 月のリリースにて廃止予定です。")
     public static func useSpotlightLegacy() {
         isSpotlightLegacyEnabled = true
     }
-    
+
     // MARK: - プロパティ
-    
+
     /// 接続中のメディアチャネルのリスト
     public private(set) var mediaChannels: [MediaChannel] = []
-    
+
     /// イベントハンドラ
     public let handlers: SoraHandlers = SoraHandlers()
-    
+
     internal static var isSpotlightLegacyEnabled: Bool = false
-    
+
     // MARK: - インスタンスの生成と取得
-    
+
     /// シングルトンインスタンス
     public static let shared: Sora = Sora()
-    
+
     /**
      初期化します。
      大抵の用途ではシングルトンインスタンスで問題なく、
@@ -140,9 +140,9 @@ public final class Sora {
         // The following line will NEVER fail.
         if !initialized { fatalError() }
     }
-    
+
     // MARK: - メディアチャネルの管理
-    
+
     func add(mediaChannel: MediaChannel) {
         DispatchQueue.global().sync {
             if !mediaChannels.contains(mediaChannel) {
@@ -152,7 +152,7 @@ public final class Sora {
             }
         }
     }
-    
+
     func remove(mediaChannel: MediaChannel) {
         DispatchQueue.global().sync {
             if mediaChannels.contains(mediaChannel) {
@@ -162,9 +162,9 @@ public final class Sora {
             }
         }
     }
-    
+
     // MARK: - 接続
-    
+
     /**
      サーバーに接続します。
      
@@ -222,31 +222,31 @@ public final class Sora {
  `cancel()` で接続をキャンセル可能です。
  */
 public final class ConnectionTask {
-    
+
     /**
      接続状態を表します。
      */
     public enum State {
-        
+
         /// 接続試行中
         case connecting
-        
+
         /// 接続済み
         case completed
-        
+
         /// キャンセル済み
         case canceled
     }
-    
+
     weak var peerChannel: PeerChannel?
-    
+
     /// 接続状態
     public private(set) var state: State
-    
+
     init() {
         state = .connecting
     }
-    
+
     /**
      * 接続試行をキャンセルします。
      * すでに接続済みであれば何もしません。
@@ -259,12 +259,12 @@ public final class ConnectionTask {
             state = .canceled
         }
     }
-    
+
     func complete() {
         if state != .completed {
             Logger.debug(type: .mediaChannel, message: "connection task completed")
             state = .completed
         }
     }
-    
+
 }

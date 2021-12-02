@@ -14,7 +14,7 @@ import AVFoundation
  *
  */
 public enum AudioMode {
-    
+
     /**
      * デフォルト。
      * ``AVAudioSession`` の音声モードを ``default`` に変更します。
@@ -24,14 +24,14 @@ public enum AudioMode {
      * - parameter output: 音声出力先
      */
     case `default`(output: AudioOutput)
-    
+
     /**
      * ビデオチャット。
      * ``AVAudioSession`` の音声モードを ``videoChat`` に変更します。
      * 音声はスピーカーから出力されます。
      */
     case videoChat
-    
+
     /**
      * ボイスチャット。
      * ``AVAudioSession`` の音声モードを ``voiceChat`` に変更します。
@@ -39,18 +39,18 @@ public enum AudioMode {
      * - parameter output: 音声出力先
      */
     case voiceChat(output: AudioOutput)
-    
+
 }
 
 /**
  * 音声出力先
  */
 public enum AudioOutput {
-    
+
     /// デフォルト。端末の状態に依存します。
     case `default`
-    
+
     /// スピーカー
     case speaker
-    
+
 }

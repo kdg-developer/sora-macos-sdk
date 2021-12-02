@@ -11,40 +11,40 @@ private let defaultPublisherAudioTrackId: String = "mainAudio"
  クライアントに関する設定です。
  */
 public struct Configuration {
-    
+
     // MARK: - 接続に関する設定
-    
+
     /**
      スポットライトの設定
      */
     public enum Spotlight {
-        
+
         /// 有効
         case enabled
-        
+
         /// 無効
         case disabled
-        
+
         @available(*, unavailable,
         message: "Sora のスポットライトレガシー機能を利用している場合は、 Sora.useSpotlightLegacy() を使用してください。")
         case legacy
     }
-    
+
     /// サーバーの URL
     public var url: URL
-    
+
     /// チャネル ID
     public var channelId: String
-    
+
     /// クライアント ID
     public var clientId: String?
-    
+
     /// ロール
     public var role: Role
-    
+
     /// マルチストリームの可否
     public var multistreamEnabled: Bool
-    
+
     /// :nodoc:
     var isMultistream: Bool {
         switch role {
@@ -54,7 +54,7 @@ public struct Configuration {
             return multistreamEnabled
         }
     }
-    
+
     /// :nodoc:
     var isSender: Bool {
         switch role {
@@ -64,27 +64,27 @@ public struct Configuration {
             return false
         }
     }
-    
+
     /**
      接続試行中のタイムアウト (秒) 。
      指定した時間内に接続が成立しなければ接続試行を中止します。
      */
     public var connectionTimeout: Int = 30
-    
+
     /// 映像コーデック。デフォルトは `.default` です。
     public var videoCodec: VideoCodec = .default
-    
+
     /// 映像ビットレート。デフォルトは無指定です。
     public var videoBitRate: Int?
-    
+
     /// 映像キャプチャーの種別。
     /// 廃止されました。
     @available(*, unavailable, message: "videoCapturerDevice は廃止されました。")
-    public var videoCapturerDevice: VideoCapturerDevice? = nil
+    public var videoCapturerDevice: VideoCapturerDevice?
 
     /// カメラの設定
     public var cameraSettings: CameraSettings = CameraSettings.default
-    
+
     /// 音声コーデック。デフォルトは `.default` です。
     public var audioCodec: AudioCodec = .default
 
@@ -94,11 +94,11 @@ public struct Configuration {
     /// 映像の可否。 `true` であれば映像を送受信します。
     /// デフォルトは `true` です。
     public var videoEnabled: Bool = true
-    
+
     /// 音声の可否。 `true` であれば音声を送受信します。
     /// デフォルトは `true` です。
     public var audioEnabled: Bool = true
-    
+
     /// サイマルキャストの可否。 `true` であればサイマルキャストを有効にします。
     public var simulcastEnabled: Bool = false
 
@@ -109,7 +109,7 @@ public struct Configuration {
     /// スポットライトの可否
     /// 詳しくは Sora のスポットライト機能を参照してください。
     public var spotlightEnabled: Spotlight = .disabled
-    
+
     /// スポットライトの対象人数
     @available(*, deprecated, renamed: "spotlightNumber",
     message: "このプロパティは spotlightNumber に置き換えられました。")
@@ -136,7 +136,7 @@ public struct Configuration {
 
     /// スポットライトの対象人数
     public var spotlightNumber: Int?
-    
+
     /// スポットライト機能でフォーカスした場合の映像の種類
     public var spotlightFocusRid: SpotlightRid = .unspecified
 
@@ -148,7 +148,7 @@ public struct Configuration {
 
     /// `connect` シグナリングに含めるメタデータ
     public var signalingConnectMetadata: Encodable?
-    
+
     /// `connect` シグナリングに含める通知用のメタデータ
     public var signalingConnectNotifyMetadata: Encodable?
 
@@ -159,20 +159,20 @@ public struct Configuration {
     /// DataChannel 経由のシグナリングを利用している際に、 WebSocket が切断されても Sora との接続を継続するためのフラグ。
     /// 詳細: https://sora-doc.shiguredo.jp/DATA_CHANNEL_SIGNALING#07c227
     public var ignoreDisconnectWebSocket: Bool?
-    
+
     // MARK: - イベントハンドラ
-    
+
     /// WebSocket チャネルに関するイベントハンドラ
     public var webSocketChannelHandlers: WebSocketChannelHandlers = WebSocketChannelHandlers()
-    
+
     /// シグナリングチャネルに関するイベントハンドラ
     @available(*, unavailable, message: "廃止されました。 mediaChannelHandlers を利用してください。")
     public var signalingChannelHandlers: SignalingChannelHandlers = SignalingChannelHandlers()
-    
+
     /// ピアチャネルに関するイベントハンドラ
     @available(*, unavailable, message: "廃止されました。 mediaChannelHandlers を利用してください。")
     public var peerChannelHandlers: PeerChannelHandlers = PeerChannelHandlers()
-    
+
     /// メディアチャネルに関するイベントハンドラ
     public var mediaChannelHandlers: MediaChannelHandlers = MediaChannelHandlers()
 
@@ -182,7 +182,7 @@ public struct Configuration {
      何も指定しなければデフォルトのシグナリングチャネルが生成されます。
      */
     @available(*, unavailable, message: "signalingChannelType は廃止されました。")
-    public var signalingChannelType: Any? = nil
+    public var signalingChannelType: Any?
 
     /**
      生成される WebSocket チャネルの型。
@@ -195,7 +195,7 @@ public struct Configuration {
      何も指定しなければデフォルトのピアチャネルが生成されます。
      */
     @available(*, unavailable, message: "peerChannelType は廃止されました。")
-    public var peerChannelType: Any? = nil
+    public var peerChannelType: Any?
 
     var _webSocketChannelType: WebSocketChannel.Type {
         get {
@@ -208,27 +208,26 @@ public struct Configuration {
             return type
         }
     }
-    
-    
+
     /// :nodoc:
     public var allowsURLSessionWebSocketChannel: Bool = true
-    
+
     // MARK: パブリッシャーに関する設定
-    
+
     /// パブリッシャーのストリームの ID です。
     /// 通常、指定する必要はありません。
     public var publisherStreamId: String = defaultPublisherStreamId
-    
+
     /// パブリッシャーの映像トラックの ID です。
     /// 通常、指定する必要はありません。
     public var publisherVideoTrackId: String = defaultPublisherVideoTrackId
-    
+
     /// パブリッシャーの音声トラックの ID です。
     /// 通常、指定する必要はありません。
     public var publisherAudioTrackId: String = defaultPublisherAudioTrackId
-    
+
     // MARK: - インスタンスの生成
-    
+
     /**
      このイニシャライザーは ``init(url:channelId:role:multistreamEnabled:)`` に置き換えられました。
      以降はマルチストリームの可否を明示的に指定してください。
@@ -249,7 +248,7 @@ public struct Configuration {
         self.role = role
         self.multistreamEnabled = false
     }
-    
+
     /**
      初期化します。
      
@@ -267,12 +266,12 @@ public struct Configuration {
         self.role = role
         self.multistreamEnabled = multistreamEnabled
     }
-    
+
 }
 
 /// :nodoc:
 extension Configuration: Codable {
-    
+
     enum CodingKeys: String, CodingKey {
         case url
         case channelId
@@ -302,7 +301,7 @@ extension Configuration: Codable {
         case publisherVideoTrackId
         case publisherAudioTrackId
     }
-    
+
     public init(from decoder: Decoder) throws {
         // NOTE: メタデータとイベントハンドラはサポートしない
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -341,7 +340,7 @@ extension Configuration: Codable {
                                                      forKey: .publisherAudioTrackId)
         // TODO: channel types
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         // NOTE: メタデータとイベントハンドラはサポートしない
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -375,12 +374,12 @@ extension Configuration: Codable {
             ,
                              forKey: .webSocketChannelType)
     }
-    
+
 }
 
 /// :nodoc:
 extension Configuration.Spotlight: Codable {
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         switch try container.decode(String.self) {
@@ -392,7 +391,7 @@ extension Configuration.Spotlight: Codable {
             self = .disabled
         }
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
@@ -406,5 +405,5 @@ extension Configuration.Spotlight: Codable {
             try container.encode("disabled")
         }
     }
-    
+
 }
