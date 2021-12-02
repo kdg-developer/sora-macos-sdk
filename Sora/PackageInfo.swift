@@ -1,6 +1,6 @@
 /// :nodoc:
 public struct SDKInfo {
-    // Sora iOS SDK のバージョンを定義する
+    // Sora macOS SDK のバージョンを定義する
     public static let version = "2021.3.0"
 }
 
@@ -18,7 +18,7 @@ public struct WebRTCInfo {
     public static let maintenanceVersion = "0"
     
     /// WebRTC フレームワークのソースコードのリビジョン
-    public static let revision = "cbad18b147e06f27082e0ff9312aeed86e6632b6"
+    public static let revision = "25e3fd53a79bfdb2bd647ee3a199eb9c3a71d271"
     
     /// WebRTC フレームワークのソースコードのリビジョン (短縮版)
     public static var shortRevision: String {

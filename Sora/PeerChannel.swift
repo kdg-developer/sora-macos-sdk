@@ -332,7 +332,7 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
             multistream = true
         }
         
-        let soraClient = "Sora iOS SDK \(SDKInfo.version)"
+        let soraClient = "Sora macOS SDK \(SDKInfo.version)"
         
         let webRTCVersion = "Shiguredo-build \(WebRTCInfo.version) (\(WebRTCInfo.version).\(WebRTCInfo.commitPosition).\(WebRTCInfo.maintenanceVersion) \(WebRTCInfo.shortRevision))"
         
@@ -453,34 +453,6 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
                     Logger.debug(type: .peerChannel,
                                  message: "set CameraVideoCapturer to sender stream")
                     capturer.stream = stream
-                }
-            }
-        }
-        
-        if configuration.audioEnabled {
-            if isAudioInputInitialized {
-                Logger.debug(type: .peerChannel,
-                             message: "audio input is already initialized")
-            } else {
-                Logger.debug(type: .peerChannel,
-                             message: "initialize audio input")
-                
-                // カテゴリをマイク用途のものに変更する
-                // libwebrtc の内部で参照される RTCAudioSessionConfiguration を使う必要がある
-                Logger.debug(type: .peerChannel,
-                             message: "change audio session category (playAndRecord)")
-                RTCAudioSessionConfiguration.webRTC().category =
-                    AVAudioSession.Category.playAndRecord.rawValue
-                
-                RTCAudioSession.sharedInstance().initializeInput { error in
-                    if let error = error {
-                        Logger.debug(type: .peerChannel,
-                                     message: "failed to initialize audio input => \(error.localizedDescription)")
-                        return
-                    }
-                    self.isAudioInputInitialized = true
-                    Logger.debug(type: .peerChannel,
-                                 message: "audio input is initialized => category \(RTCAudioSession.sharedInstance().category)")
                 }
             }
         }
@@ -754,21 +726,21 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         case .ping(let ping):
             let pong = SignalingPong()
             if ping.statisticsEnabled == true {
-                nativeChannel.statistics { report in
-                    var json: [String: Any] = ["type": "pong"]
-                    let stats = Statistics(contentsOf: report)
-                    json["stats"] = stats.jsonObject
-                    do {
-                        let data = try JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted])
-                        if let message = String(data: data, encoding: .utf8) {
-                            self.signalingChannel.send(text: message)
-                        } else {
-                            self.signalingChannel.send(message: .pong(pong))
-                        }
-                    } catch {
-                        self.signalingChannel.send(message: .pong(pong))
-                    }
-                }
+              nativeChannel.statistics { report in
+                  var json: [String: Any] = ["type": "pong"]
+                  let stats = Statistics(contentsOf: report)
+                  json["stats"] = stats.jsonObject
+                  do {
+                      let data = try JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted])
+                      if let message = String(data: data, encoding: .utf8) {
+                          self.signalingChannel.send(text: message)
+                      } else {
+                          self.signalingChannel.send(message: .pong(pong))
+                      }
+                  } catch {
+                      self.signalingChannel.send(message: .pong(pong))
+                  }
+              }
             } else {
                 signalingChannel.send(message: .pong(pong))
             }

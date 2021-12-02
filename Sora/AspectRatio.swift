@@ -1,4 +1,4 @@
-import UIKit
+import Foundation
 
 /// :nodoc:
 public enum AspectRatio {

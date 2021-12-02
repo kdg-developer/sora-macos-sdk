@@ -98,6 +98,12 @@ public protocol MediaStream: AnyObject {
     
     /// 映像レンダラー。
     var videoRenderer: VideoRenderer? { get set }
+
+    var nativeVideoTrack: RTCVideoTrack? { get }
+
+    var nativeVideoSource: RTCVideoSource? { get }
+
+    var nativeAudioTrack: RTCAudioTrack? { get }
     
     /**
      映像フレームをサーバーに送信します。
@@ -195,7 +201,7 @@ class BasicMediaStream: MediaStream {
             }
         }
     }
-    
+
     var audioEnabled: Bool {
         get {
             return nativeAudioTrack?.isEnabled ?? false

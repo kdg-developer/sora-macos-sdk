@@ -1,10 +1,10 @@
-# Sora iOS SDK
+# [Unofficial] Sora macOS SDK
 
-[![libwebrtc](https://img.shields.io/badge/libwebrtc-m95.4638-blue.svg)](https://chromium.googlesource.com/external/webrtc/+/branch-heads/4638)
-[![GitHub tag](https://img.shields.io/github/tag/shiguredo/sora-ios-sdk.svg)](https://github.com/shiguredo/sora-ios-sdk)
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Sora iOS SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の iOS クライアントアプリケーションを開発するためのライブラリです。
+Sora macOS SDK は **非公式な** [WebRTC SFU Sora](https://sora.shiguredo.jp) の macOS クライアントアプリケーションを開発するためのライブラリです。
+趣味で使っているだけなので、サポート等々はありません。ご了承ください。
 
 ## About Shiguredo's open source software
 
@@ -18,24 +18,14 @@ Please read https://github.com/shiguredo/oss before use.
 
 ## システム条件
 
-- iOS 12.1 以降
-- アーキテクチャ arm64, x86_64 (シミュレーターの動作は未保証)
+- アーキテクチャ arm64, x86_64
 - macOS 12.0 以降
 - Xcode 13.1
 - Swift 5.5
 - CocoaPods 1.11.2 以降
 - WebRTC SFU Sora 2021.1 以降
 
-Xcode と Swift のバージョンによっては、 CocoaPods で取得できるバイナリに互換性がない可能性があります。詳しくはドキュメントを参照してください。
-
-## サンプル
-
-- [クイックスタート](https://github.com/shiguredo/sora-ios-sdk-quickstart)
-- [サンプル集](https://github.com/shiguredo/sora-ios-sdk-samples)
-
-## ドキュメント
-
-[Sora iOS SDK ドキュメント — Sora iOS SDK](https://sora-ios-sdk.shiguredo.jp/)
+Xcode と Swift のバージョンによっては、  CocoaPods で取得できるバイナリに互換性がない可能性があります。
 
 ## ライセンス
 

@@ -256,21 +256,20 @@ public struct SignalingClientMetadata {
  */
 public struct SignalingNotifyMetadata {
 
-    /// クライアント ID
-    public var clientId: String?
-    
-    /// 接続 ID
-    public var connectionId: String?
-    
-    /// シグナリング接続時にクライアントが指定した値
-    public var authnMetadata: Any?
+  /// クライアント ID
+  public var clientId: String?
 
-    /// Sora の認証ウェブフックの戻り値で指定された値
-    public var authzMetadata: Any?
-    
-    /// メタデータ
-    public var metadata: Any?
-    
+  /// 接続 ID
+  public var connectionId: String?
+
+  /// シグナリング接続時にクライアントが指定した値
+  public var authnMetadata: Any?
+
+  /// Sora の認証ウェブフックの戻り値で指定された値
+  public var authzMetadata: Any?
+
+  /// メタデータ
+  public var metadata: Any?
 }
 
 /**
@@ -650,67 +649,67 @@ public struct SignalingNotify {
 @available(*, unavailable, message: "SignalingNotifyConnection は廃止されました。  SignalingNotify を利用してください。")
 public struct SignalingNotifyConnection {
 
-    // MARK: イベント情報
-    
-    /// イベントの種別
-    public var eventType: Any
-    
-    // MARK: 接続情報
-    
-    /// ロール
-    public var role: SignalingRole
-    
-    /// クライアント ID
-    public var clientId: String?
-    
-    /// 接続 ID
-    public var connectionId: String?
-    
-    /// 音声の可否
-    public var audioEnabled: Bool?
-    
-    /// 映像の可否
-    public var videoEnabled: Bool?
-    
-    /// メタデータ
-    public var metadata: Any?
-    
-    /// シグナリング接続時にクライアントが指定した値
-    public var authnMetadata: Any?
+  // MARK: イベント情報
+  
+  /// イベントの種別
+  public var eventType: Any
+  
+  // MARK: 接続情報
+  
+  /// ロール
+  public var role: SignalingRole
+  
+  /// クライアント ID
+  public var clientId: String?
+  
+  /// 接続 ID
+  public var connectionId: String?
+  
+  /// 音声の可否
+  public var audioEnabled: Bool?
+  
+  /// 映像の可否
+  public var videoEnabled: Bool?
+  
+  /// メタデータ
+  public var metadata: Any?
+  
+  /// シグナリング接続時にクライアントが指定した値
+  public var authnMetadata: Any?
 
-    /// Sora の認証ウェブフックの戻り値で指定された値
-    public var authzMetadata: Any?
+  /// Sora の認証ウェブフックの戻り値で指定された値
+  public var authzMetadata: Any?
 
-    /// メタデータのリスト
-    public var metadataList: [SignalingNotifyMetadata]?
+  /// メタデータのリスト
+  public var metadataList: [SignalingNotifyMetadata]?
 
-    // メタデータのリスト
-    public var data: [SignalingNotifyMetadata]?
-    
-    // MARK: 接続状態
-    
-    /// 接続時間 (分)
-    public var connectionTime: Int
-    
-    /// 接続中のクライアントの数
-    public var connectionCount: Int
-    
-    /// 接続中のパブリッシャーの数
-    @available(*, deprecated, message: "このプロパティは channelSendonlyConnections と channelSendrecvConnections に置き換えられました。")
-    public var publisherCount: Int?
-    
-    /// 接続中のサブスクライバーの数
-    @available(*, deprecated, message: "このプロパティは channelRecvonlyConnections と channelSendrecvConnections に置き換えられました。")
-    public var subscriberCount: Int?
-    
-    /// 接続中の送信専用接続の数
-    public var channelSendonlyConnections: Int?
-    
-    /// 接続中の受信専用接続の数
-    public var channelRecvonlyConnections: Int?
-    
-    /// 接続中の送受信可能接続の数
-    public var channelSendrecvConnections: Int?
+  // メタデータのリスト
+  public var data: [SignalingNotifyMetadata]?
+  
+  // MARK: 接続状態
+  
+  /// 接続時間 (分)
+  public var connectionTime: Int
+  
+  /// 接続中のクライアントの数
+  public var connectionCount: Int
+  
+  /// 接続中のパブリッシャーの数
+  @available(*, deprecated, message: "このプロパティは channelSendonlyConnections と channelSendrecvConnections に置き換えられました。")
+  public var publisherCount: Int?
+  
+  /// 接続中のサブスクライバーの数
+  @available(*, deprecated, message: "このプロパティは channelRecvonlyConnections と channelSendrecvConnections に置き換えられました。")
+  public var subscriberCount: Int?
+  
+  /// 接続中の送信専用接続の数
+  public var channelSendonlyConnections: Int?
+  
+  /// 接続中の受信専用接続の数
+  public var channelRecvonlyConnections: Int?
+  
+  /// 接続中の送受信可能接続の数
+  public var channelSendrecvConnections: Int?
 
 }
 

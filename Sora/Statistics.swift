@@ -32,17 +32,17 @@ public class Statistics {
 
 /// :nodoc:
 public class StatisticsEntry {
-    
+
     public var id: String
     public var type: String
     public var timestamp: CFTimeInterval
     public var values: [String: NSObject]
-    
+
     init(contentsOf statistics: RTCStatistics) {
         id = statistics.id
         type = statistics.type
         timestamp = statistics.timestamp_us
         values = statistics.values
     }
-    
+
 }
