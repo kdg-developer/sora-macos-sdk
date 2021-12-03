@@ -58,8 +58,10 @@ public protocol MediaStream: AnyObject {
 
     /// イベントハンドラ
     var handlers: MediaStreamHandlers { get }
-
     // MARK: - 接続情報
+
+    /// ピアチャンネル
+    var peerChannel: PeerChannel { get }
 
     /// ストリーム ID
     var streamId: String { get }
@@ -129,7 +131,7 @@ class BasicMediaStream: MediaStream {
 
     let handlers: MediaStreamHandlers = MediaStreamHandlers()
 
-    var peerChannel: PeerChannel
+    let peerChannel: PeerChannel
 
     var streamId: String = ""
     var videoTrackId: String = ""

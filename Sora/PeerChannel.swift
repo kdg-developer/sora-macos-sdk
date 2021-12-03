@@ -42,7 +42,7 @@ final class PeerChannelInternalHandlers {
 
 }
 
-class PeerChannel {
+public class PeerChannel {
 
     var internalHandlers: PeerChannelInternalHandlers = PeerChannelInternalHandlers()
     let configuration: Configuration
@@ -55,7 +55,7 @@ class PeerChannel {
         get { return context.clientId }
     }
 
-    var connectionId: String? {
+    public var connectionId: String? {
         context.connectionId
     }
 
