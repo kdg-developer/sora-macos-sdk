@@ -6,13 +6,13 @@ import Foundation
  */
 @available(*, deprecated, message: "CameraPosition は廃止されました。")
 public enum CameraPosition {
-    
+
     /// 前面
     case front
-    
+
     /// 背面
     case back
-    
+
     /**
      カメラの位置の前面と背面を反転します。
      
@@ -26,5 +26,5 @@ public enum CameraPosition {
             return .front
         }
     }
-    
+
 }

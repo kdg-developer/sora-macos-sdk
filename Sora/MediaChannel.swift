@@ -3,7 +3,7 @@ import WebRTC
 
 /// メディアチャネルのイベントハンドラです。
 public final class MediaChannelHandlers {
-    
+
     /// このプロパティは onConnect に置き換えられました。
     @available(*, deprecated, renamed: "onConnect",
     message: "このプロパティは onConnect に置き換えられました。")
@@ -11,7 +11,7 @@ public final class MediaChannelHandlers {
         get { onConnect }
         set { onConnect = newValue }
     }
-    
+
     /// このプロパティは onDisconnect に置き換えられました。
     @available(*, deprecated, renamed: "onDisconnect",
     message: "このプロパティは onDisconnect に置き換えられました。")
@@ -19,7 +19,7 @@ public final class MediaChannelHandlers {
         get { onDisconnect }
         set { onDisconnect = newValue }
     }
-    
+
     /// このプロパティは onAddStream に置き換えられました。
     @available(*, deprecated, renamed: "onAddStream",
     message: "このプロパティは onAddStream に置き換えられました。")
@@ -27,7 +27,7 @@ public final class MediaChannelHandlers {
         get { onAddStream }
         set { onAddStream = newValue }
     }
-    
+
     /// このプロパティは onRemoveStream に置き換えられました。
     @available(*, deprecated, renamed: "onRemoveStream",
     message: "このプロパティは onRemoveStream に置き換えられました。")
@@ -35,7 +35,7 @@ public final class MediaChannelHandlers {
         get { onRemoveStream }
         set { onRemoveStream = newValue }
     }
-    
+
     /// このプロパティは onReceiveSignaling に置き換えられました。
     @available(*, deprecated, renamed: "onReceiveSignaling",
     message: "このプロパティは onReceiveSignaling に置き換えられました。")
@@ -43,19 +43,19 @@ public final class MediaChannelHandlers {
         get { onReceiveSignaling }
         set { onReceiveSignaling = newValue }
     }
-    
+
     /// 接続成功時に呼ばれるクロージャー
     public var onConnect: ((Error?) -> Void)?
-    
+
     /// 接続解除時に呼ばれるクロージャー
     public var onDisconnect: ((Error?) -> Void)?
-    
+
     /// ストリームが追加されたときに呼ばれるクロージャー
     public var onAddStream: ((MediaStream) -> Void)?
-    
+
     /// ストリームが除去されたときに呼ばれるクロージャー
     public var onRemoveStream: ((MediaStream) -> Void)?
-    
+
     /// シグナリング受信時に呼ばれるクロージャー
     public var onReceiveSignaling: ((Signaling) -> Void)?
 
@@ -64,10 +64,10 @@ public final class MediaChannelHandlers {
 
     /// DataChannel のメッセージ受信時に呼ばれるクロージャー
     public var onDataChannelMessage: ((MediaChannel, String, Data) -> Void)?
-    
+
     /// 初期化します。
     public init() {}
-    
+
 }
 
 // MARK: -
@@ -91,27 +91,27 @@ public final class MediaChannelHandlers {
  
  */
 public final class MediaChannel {
-    
+
     // MARK: - イベントハンドラ
-    
+
     /// イベントハンドラ
     public var handlers: MediaChannelHandlers = MediaChannelHandlers()
-    
+
     /// 内部処理で使われるイベントハンドラ
     var internalHandlers: MediaChannelHandlers = MediaChannelHandlers()
-    
+
     // MARK: - 接続情報
-    
+
     /// クライアントの設定
     public let configuration: Configuration
-    
+
     /// メディアチャンネルの内部で利用している RTCPeerConnection
     public var native: RTCPeerConnection {
         get {
             return peerChannel.context.nativeChannel
         }
     }
-    
+
     /**
      クライアント ID 。接続後にセットされます。
      */
@@ -120,7 +120,7 @@ public final class MediaChannel {
             return peerChannel.clientId
         }
     }
-    
+
     /**
      接続 ID 。接続後にセットされます。
      */
@@ -129,7 +129,7 @@ public final class MediaChannel {
             return peerChannel.connectionId
         }
     }
-    
+
     /// 接続状態
     public private(set) var state: ConnectionState = .disconnected {
         didSet {
@@ -137,16 +137,16 @@ public final class MediaChannel {
                          message: "changed state from \(oldValue) to \(state)")
         }
     }
-    
+
     /// 接続中 (`state == .connected`) であれば ``true``
     public var isAvailable: Bool {
         get { return state == .connected }
     }
-    
+
     /// 接続開始時刻。
     /// 接続中にのみ取得可能です。
     public private(set) var connectionStartTime: Date?
-    
+
     /// 接続時間 (秒) 。
     /// 接続中にのみ取得可能です。
     public var connectionTime: Int? {
@@ -158,9 +158,9 @@ public final class MediaChannel {
             }
         }
     }
-    
+
     // MARK: 接続中のチャネルの情報
-    
+
     /// 同チャネルに接続中のクライアントの数。
     /// サーバーから通知を受信可能であり、かつ接続中にのみ取得可能です。
     public var connectionCount: Int? {
@@ -173,17 +173,17 @@ public final class MediaChannel {
             }
         }
     }
-    
+
     /// 同チャネルに接続中のクライアントのうち、パブリッシャーの数。
     /// サーバーから通知を受信可能であり、接続中にのみ取得可能です。
     public private(set) var publisherCount: Int?
-    
+
     /// 同チャネルに接続中のクライアントの数のうち、サブスクライバーの数。
     /// サーバーから通知を受信可能であり、接続中にのみ取得可能です。
     public private(set) var subscriberCount: Int?
-    
+
     // MARK: 接続チャネル
-    
+
     /// シグナリングチャネル
     let signalingChannel: SignalingChannel
 
@@ -202,12 +202,12 @@ public final class MediaChannel {
     }
     // PeerChannel に mediaChannel を保持させる際にこの書き方が必要になった
     private var _peerChannel: PeerChannel?
-    
+
     /// ストリームのリスト
     public var streams: [MediaStream] {
         return peerChannel.streams
     }
-    
+
     /**
      最初のストリーム。
      マルチストリームでは、必ずしも最初のストリームが 送信ストリームとは限りません。
@@ -216,7 +216,7 @@ public final class MediaChannel {
     public var mainStream: MediaStream? {
         return streams.first
     }
-    
+
     /// 送信に使われるストリーム。
     /// ストリーム ID が `configuration.publisherStreamId` に等しいストリームを返します。
     public var senderStream: MediaStream? {
@@ -224,7 +224,7 @@ public final class MediaChannel {
             stream.streamId == configuration.publisherStreamId
         }
     }
-    
+
     /// 受信ストリームのリスト。
     /// ストリーム ID が `configuration.publisherStreamId` と異なるストリームを返します。
     public var receiverStreams: [MediaStream] {
@@ -242,9 +242,9 @@ public final class MediaChannel {
     private var _connectionTimer: ConnectionTimer?
 
     private let manager: Sora
-    
+
     // MARK: - インスタンスの生成
-    
+
     /**
      初期化します。
      
@@ -259,23 +259,23 @@ public final class MediaChannel {
                                         signalingChannel: signalingChannel,
                                         mediaChannel: self)
         handlers = configuration.mediaChannelHandlers
-        
+
         _connectionTimer = ConnectionTimer(monitors: [
             .webSocketChannel(signalingChannel.webSocketChannel),
             .signalingChannel(signalingChannel),
             .peerChannel(_peerChannel!)],
                                           timeout: configuration.connectionTimeout)
     }
-    
+
     // MARK: - 接続
-    
+
     private var _handler: ((_ error: Error?) -> Void)?
 
     private func executeHandler(error: Error?) {
         _handler?(error)
         _handler = nil
     }
-    
+
     /**
      サーバーに接続します。
      
@@ -294,7 +294,7 @@ public final class MediaChannel {
             task.complete()
             return task
         }
-        
+
         DispatchQueue.global().async { [weak self] in
             self?.basicConnect(connectionTask: task,
                               webRTCConfiguration: webRTCConfiguration,
@@ -303,7 +303,7 @@ public final class MediaChannel {
         }
         return task
     }
-    
+
     private func basicConnect(connectionTask: ConnectionTask,
                               webRTCConfiguration: WebRTCConfiguration,
                               timeout: Int,
@@ -323,7 +323,7 @@ public final class MediaChannel {
             }
             connectionTask.complete()
         }
-        
+
         peerChannel.internalHandlers.onDisconnect = { [weak self] (error, reason) in
             guard let weakSelf = self else {
                 return
@@ -333,7 +333,7 @@ public final class MediaChannel {
             }
             connectionTask.complete()
         }
-        
+
         peerChannel.internalHandlers.onAddStream = { [weak self] stream in
             guard let weakSelf = self else {
                 return
@@ -343,7 +343,7 @@ public final class MediaChannel {
             weakSelf.internalHandlers.onAddStream?(stream)
             weakSelf.handlers.onAddStream?(stream)
         }
-        
+
         peerChannel.internalHandlers.onRemoveStream = { [weak self] stream in
             guard let weakSelf = self else {
                 return
@@ -353,7 +353,7 @@ public final class MediaChannel {
             weakSelf.internalHandlers.onRemoveStream?(stream)
             weakSelf.handlers.onRemoveStream?(stream)
         }
-        
+
         peerChannel.internalHandlers.onReceiveSignaling = { [weak self] message in
             guard let weakSelf = self else {
                 return
@@ -366,25 +366,25 @@ public final class MediaChannel {
             default:
                 break
             }
-            
+
             Logger.debug(type: .mediaChannel, message: "call onReceiveSignaling")
             weakSelf.internalHandlers.onReceiveSignaling?(message)
             weakSelf.handlers.onReceiveSignaling?(message)
         }
-        
-        peerChannel.connect() { [weak self] error in
+
+        peerChannel.connect { [weak self] error in
             guard let weakSelf = self else {
                 return
             }
 
             weakSelf.connectionTimer.stop()
             connectionTask.complete()
-            
+
             if let error = error {
                 Logger.error(type: .mediaChannel, message: "failed to connect")
                 weakSelf.internalDisconnect(error: error, reason: .signalingFailure)
                 handler(error)
-                
+
                 Logger.debug(type: .mediaChannel, message: "call onConnect")
                 weakSelf.internalHandlers.onConnect?(error)
                 weakSelf.handlers.onConnect?(error)
@@ -397,7 +397,7 @@ public final class MediaChannel {
             weakSelf.internalHandlers.onConnect?(nil)
             weakSelf.handlers.onConnect?(nil)
         }
-        
+
         self.connectionStartTime = Date()
         connectionTimer.run {
             Logger.error(type: .mediaChannel, message: "connection timeout")
@@ -419,7 +419,7 @@ public final class MediaChannel {
         switch state {
         case .disconnecting, .disconnected:
             break
-            
+
         default:
             Logger.debug(type: .mediaChannel, message: "try disconnecting")
             if let error = error {
@@ -445,21 +445,21 @@ public final class MediaChannel {
 }
 
 extension MediaChannel: CustomStringConvertible {
-    
+
     /// :nodoc:
     public var description: String {
         get {
             return "MediaChannel(clientId: \(clientId ?? "-"), role: \(configuration.role))"
         }
     }
-    
+
 }
 
 /// :nodoc:
 extension MediaChannel: Equatable {
-    
+
     public static func ==(lhs: MediaChannel, rhs: MediaChannel) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
-    
+
 }
