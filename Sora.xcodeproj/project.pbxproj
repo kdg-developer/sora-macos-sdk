@@ -642,7 +642,7 @@
 				INFOPLIST_FILE = Sora/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MARKETING_VERSION = 2021.3.0;
+				MARKETING_VERSION = 2021.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.shiguredo.sora.ios.sdk.Sora;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -675,7 +675,7 @@
 				INFOPLIST_FILE = Sora/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MARKETING_VERSION = 2021.3.0;
+				MARKETING_VERSION = 2021.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.shiguredo.sora.ios.sdk.Sora;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
