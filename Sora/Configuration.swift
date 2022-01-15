@@ -91,6 +91,9 @@ public struct Configuration {
     /// 音声ビットレート。デフォルトは無指定です。
     public var audioBitRate: Int?
 
+    /// 音声モジュール
+    public var audioModule: RTCAudioDeviceModule = RTCAudioDeviceModule()
+
     /// 映像の可否。 `true` であれば映像を送受信します。
     /// デフォルトは `true` です。
     public var videoEnabled: Bool = true
