@@ -205,6 +205,8 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         }
     }
 
+    var nativeFactory: NativePeerChannelFactory
+
     // connect() の成功後は必ずセットされるので nil チェックを省略する
     // connect() 実行前は nil なのでアクセスしないこと
     var nativeChannel: RTCPeerConnection!
@@ -233,6 +235,7 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
 
     init(channel: PeerChannel) {
         self.channel = channel
+        self.nativeFactory = NativePeerChannelFactory(channel.configuration.audioModule)
 
         lock = Lock()
         super.init()
@@ -259,7 +262,7 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         Logger.debug(type: .peerChannel, message: "try connecting to signaling channel")
 
         self.webRTCConfiguration = channel.configuration.webRTCConfiguration
-        nativeChannel = NativePeerChannelFactory.default
+        nativeChannel = nativeFactory
             .createNativePeerChannel(configuration: webRTCConfiguration,
                                      constraints: webRTCConfiguration.constraints,
                                      delegate: self)
@@ -294,7 +297,7 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
 
         if configuration.isSender {
             Logger.debug(type: .peerChannel, message: "try creating offer SDP")
-            NativePeerChannelFactory.default
+            nativeFactory
                 .createClientOfferSDP(configuration: webRTCConfiguration,
                                       constraints: webRTCConfiguration.constraints) { sdp, sdpError in
                     if let error = sdpError {
@@ -377,7 +380,7 @@ class BasicPeerChannelContext: NSObject, RTCPeerConnectionDelegate {
         Logger.debug(type: .peerChannel,
                      message: "initialize sender stream")
 
-        let nativeStream = NativePeerChannelFactory.default
+        let nativeStream = nativeFactory
             .createNativeSenderStream(streamId: configuration.publisherStreamId,
                                          videoTrackId:
                 configuration.videoEnabled ? configuration.publisherVideoTrackId: nil,
