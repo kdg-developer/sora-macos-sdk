@@ -92,7 +92,7 @@ public struct Configuration {
     public var audioBitRate: Int?
 
     /// 音声モジュール
-    public var audioModule: RTCAudioDeviceModule = RTCAudioDeviceModule()
+    public var audioModule: RTCAudioDeviceModule?
 
     /// 映像の可否。 `true` であれば映像を送受信します。
     /// デフォルトは `true` です。
