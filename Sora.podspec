@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sora"
-  s.version      = "2022.3.1"
+  s.version      = "2021.3.2"
   s.summary      = "[Unofficial] Sora macOS SDK"
   s.description  = <<-DESC
                    A library to develop Sora client applications.
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   }
   s.source_files  = "Sora/**/*.swift"
   s.resources = []
-  s.dependency "WebRTC", '96.4664.2.0.1'
+  s.dependency "WebRTC", '97.4692.4.0.2'
   s.dependency "Starscream", "4.0.4"
   s.pod_target_xcconfig = {
     'ARCHS' => 'arm64 x86_64',
