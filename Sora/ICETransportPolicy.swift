@@ -9,7 +9,6 @@ private var iceTransportPolicyTable: PairTable<ICETransportPolicy, RTCIceTranspo
  ICE 通信ポリシーを表します。
  */
 public enum ICETransportPolicy {
-
     /// TURN サーバーを経由するメディアリレー候補のみを使用します。
     case relay
 
@@ -17,16 +16,12 @@ public enum ICETransportPolicy {
     case all
 
     var nativeValue: RTCIceTransportPolicy {
-        get {
-            return iceTransportPolicyTable.right(other: self)!
-        }
+        iceTransportPolicyTable.right(other: self)!
     }
-
 }
 
 /// :nodoc:
 extension ICETransportPolicy: CustomStringConvertible {
-
     public var description: String {
         switch self {
         case .relay:
@@ -35,12 +30,10 @@ extension ICETransportPolicy: CustomStringConvertible {
             return "all"
         }
     }
-
 }
 
 /// :nodoc:
 extension ICETransportPolicy: Codable {
-
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)
@@ -62,5 +55,4 @@ extension ICETransportPolicy: Codable {
             try container.encode("all")
         }
     }
-
 }

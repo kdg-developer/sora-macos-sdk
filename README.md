@@ -1,6 +1,6 @@
-# [Unofficial] Sora macOS SDK
+# Sora iOS SDK
 
-
+[![libwebrtc](https://img.shields.io/badge/libwebrtc-m98.4758-blue.svg)](https://chromium.googlesource.com/external/webrtc/+/branch-heads/4758)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Sora macOS SDK は **非公式な** [WebRTC SFU Sora](https://sora.shiguredo.jp) の macOS クライアントアプリケーションを開発するためのライブラリです。
@@ -19,13 +19,11 @@ Please read https://github.com/shiguredo/oss before use.
 ## システム条件
 
 - アーキテクチャ arm64, x86_64
-- macOS 12.0 以降
-- Xcode 13.1
-- Swift 5.5
+- macOS 12.2 以降
+- Xcode 13.2
+- Swift 5.5.2
 - CocoaPods 1.11.2 以降
-- WebRTC SFU Sora 2021.1 以降
-
-Xcode と Swift のバージョンによっては、  CocoaPods で取得できるバイナリに互換性がない可能性があります。
+- WebRTC SFU Sora 2021.2 以降
 
 ## ライセンス
 

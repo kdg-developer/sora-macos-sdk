@@ -5,7 +5,6 @@ import WebRTC
  ICE サーバーの情報を表します。
  */
 public final class ICEServerInfo {
-
     // MARK: プロパティ
 
     /// URL のリスト
@@ -21,12 +20,10 @@ public final class ICEServerInfo {
     public var tlsSecurityPolicy: TLSSecurityPolicy = .secure
 
     var nativeValue: RTCIceServer {
-        get {
-            return RTCIceServer(urlStrings: urls.map { url in url.absoluteString },
-                                username: userName,
-                                credential: credential,
-                                tlsCertPolicy: tlsSecurityPolicy.nativeValue)
-        }
+        RTCIceServer(urlStrings: urls.map { url in url.absoluteString },
+                     username: userName,
+                     credential: credential,
+                     tlsCertPolicy: tlsSecurityPolicy.nativeValue)
     }
 
     // MARK: 初期化
@@ -35,29 +32,26 @@ public final class ICEServerInfo {
     public init(urls: [URL],
                 userName: String?,
                 credential: String?,
-                tlsSecurityPolicy: TLSSecurityPolicy) {
+                tlsSecurityPolicy: TLSSecurityPolicy)
+    {
         self.urls = urls
         self.userName = userName
         self.credential = credential
         self.tlsSecurityPolicy = tlsSecurityPolicy
     }
-
 }
 
 /// :nodoc:
 extension ICEServerInfo: CustomStringConvertible {
-
     public var description: String {
         let encoder = JSONEncoder()
         let data = try! encoder.encode(self)
         return String(data: data, encoding: .utf8)!
     }
-
 }
 
 /// :nodoc:
 extension ICEServerInfo: Codable {
-
     enum CodingKeys: String, CodingKey {
         case urls
         case userName = "username"

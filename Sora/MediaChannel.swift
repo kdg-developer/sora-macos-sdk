@@ -3,10 +3,9 @@ import WebRTC
 
 /// メディアチャネルのイベントハンドラです。
 public final class MediaChannelHandlers {
-
     /// このプロパティは onConnect に置き換えられました。
     @available(*, deprecated, renamed: "onConnect",
-    message: "このプロパティは onConnect に置き換えられました。")
+               message: "このプロパティは onConnect に置き換えられました。")
     public var onConnectHandler: ((Error?) -> Void)? {
         get { onConnect }
         set { onConnect = newValue }
@@ -14,7 +13,7 @@ public final class MediaChannelHandlers {
 
     /// このプロパティは onDisconnect に置き換えられました。
     @available(*, deprecated, renamed: "onDisconnect",
-    message: "このプロパティは onDisconnect に置き換えられました。")
+               message: "このプロパティは onDisconnect に置き換えられました。")
     public var onDisconnectHandler: ((Error?) -> Void)? {
         get { onDisconnect }
         set { onDisconnect = newValue }
@@ -22,7 +21,7 @@ public final class MediaChannelHandlers {
 
     /// このプロパティは onAddStream に置き換えられました。
     @available(*, deprecated, renamed: "onAddStream",
-    message: "このプロパティは onAddStream に置き換えられました。")
+               message: "このプロパティは onAddStream に置き換えられました。")
     public var onAddStreamHandler: ((MediaStream) -> Void)? {
         get { onAddStream }
         set { onAddStream = newValue }
@@ -30,7 +29,7 @@ public final class MediaChannelHandlers {
 
     /// このプロパティは onRemoveStream に置き換えられました。
     @available(*, deprecated, renamed: "onRemoveStream",
-    message: "このプロパティは onRemoveStream に置き換えられました。")
+               message: "このプロパティは onRemoveStream に置き換えられました。")
     public var onRemoveStreamHandler: ((MediaStream) -> Void)? {
         get { onRemoveStream }
         set { onRemoveStream = newValue }
@@ -38,7 +37,7 @@ public final class MediaChannelHandlers {
 
     /// このプロパティは onReceiveSignaling に置き換えられました。
     @available(*, deprecated, renamed: "onReceiveSignaling",
-    message: "このプロパティは onReceiveSignaling に置き換えられました。")
+               message: "このプロパティは onReceiveSignaling に置き換えられました。")
     public var onReceiveSignalingHandler: ((Signaling) -> Void)? {
         get { onReceiveSignaling }
         set { onReceiveSignaling = newValue }
@@ -67,67 +66,64 @@ public final class MediaChannelHandlers {
 
     /// 初期化します。
     public init() {}
-
 }
 
 // MARK: -
 
 /**
- 
+
  一度接続を行ったメディアチャネルは再利用できません。
  同じ設定で接続を行いたい場合は、新しい接続を行う必要があります。
- 
+
  ## 接続が解除されるタイミング
- 
+
  メディアチャネルの接続が解除される条件を以下に示します。
  いずれかの条件が 1 つでも成立すると、メディアチャネルを含めたすべてのチャネル
  (シグナリングチャネル、ピアチャネル、 WebSocket チャネル) の接続が解除されます。
- 
+
  - シグナリングチャネル (`SignalingChannel`) の接続が解除される。
  - WebSocket チャネル (`WebSocketChannel`) の接続が解除される。
  - ピアチャネル (`PeerChannel`) の接続が解除される。
  - サーバーから受信したシグナリング `ping` に対して `pong` を返さない。
    これはピアチャネルの役目です。
- 
+
  */
 public final class MediaChannel {
-
     // MARK: - イベントハンドラ
 
     /// イベントハンドラ
-    public var handlers: MediaChannelHandlers = MediaChannelHandlers()
+    public var handlers = MediaChannelHandlers()
 
     /// 内部処理で使われるイベントハンドラ
-    var internalHandlers: MediaChannelHandlers = MediaChannelHandlers()
+    var internalHandlers = MediaChannelHandlers()
 
     // MARK: - 接続情報
 
     /// クライアントの設定
     public let configuration: Configuration
 
+    /// 接続中の URL
+    public var connectedUrl: URL? {
+        signalingChannel.connectedUrl
+    }
+
     /// メディアチャンネルの内部で利用している RTCPeerConnection
-    public var native: RTCPeerConnection {
-        get {
-            return peerChannel.context.nativeChannel
-        }
+    public var native: RTCPeerConnection? {
+        peerChannel.nativeChannel
     }
 
     /**
      クライアント ID 。接続後にセットされます。
      */
     public var clientId: String? {
-        get {
-            return peerChannel.clientId
-        }
+        peerChannel.clientId
     }
 
     /**
      接続 ID 。接続後にセットされます。
      */
     public var connectionId: String? {
-        get {
-            return peerChannel.connectionId
-        }
+        peerChannel.connectionId
     }
 
     /// 接続状態
@@ -139,9 +135,7 @@ public final class MediaChannel {
     }
 
     /// 接続中 (`state == .connected`) であれば ``true``
-    public var isAvailable: Bool {
-        get { return state == .connected }
-    }
+    public var isAvailable: Bool { state == .connected }
 
     /// 接続開始時刻。
     /// 接続中にのみ取得可能です。
@@ -150,12 +144,10 @@ public final class MediaChannel {
     /// 接続時間 (秒) 。
     /// 接続中にのみ取得可能です。
     public var connectionTime: Int? {
-        get {
-            if let start = connectionStartTime {
-                return Int(Date().timeIntervalSince(start))
-            } else {
-                return nil
-            }
+        if let start = connectionStartTime {
+            return Int(Date().timeIntervalSince(start))
+        } else {
+            return nil
         }
     }
 
@@ -164,13 +156,11 @@ public final class MediaChannel {
     /// 同チャネルに接続中のクライアントの数。
     /// サーバーから通知を受信可能であり、かつ接続中にのみ取得可能です。
     public var connectionCount: Int? {
-        get {
-            switch (publisherCount, subscriberCount) {
-            case (.some(let pub), .some(let sub)):
-                return pub + sub
-            default:
-                return nil
-            }
+        switch (publisherCount, subscriberCount) {
+        case let (.some(pub), .some(sub)):
+            return pub + sub
+        default:
+            return nil
         }
     }
 
@@ -188,24 +178,20 @@ public final class MediaChannel {
     let signalingChannel: SignalingChannel
 
     /// ウェブソケットチャンネル
-    public var webSocketChannel: WebSocketChannel {
-        get {
-            signalingChannel.webSocketChannel
-        }
-    }
+    @available(*, unavailable, message: "webSocketChannel は廃止されました。")
+    public var webSocketChannel: Any?
 
     /// ピアチャネル
     var peerChannel: PeerChannel {
-        get {
-            _peerChannel!
-        }
+        _peerChannel!
     }
+
     // PeerChannel に mediaChannel を保持させる際にこの書き方が必要になった
     private var _peerChannel: PeerChannel?
 
     /// ストリームのリスト
     public var streams: [MediaStream] {
-        return peerChannel.streams
+        peerChannel.streams
     }
 
     /**
@@ -214,7 +200,7 @@ public final class MediaChannel {
      送信ストリームが必要であれば `senderStream` を使用してください。
      */
     public var mainStream: MediaStream? {
-        return streams.first
+        streams.first
     }
 
     /// 送信に使われるストリーム。
@@ -234,10 +220,9 @@ public final class MediaChannel {
     }
 
     private var connectionTimer: ConnectionTimer {
-        get {
-            _connectionTimer!
-        }
+        _connectionTimer!
     }
+
     // PeerChannel に mediaChannel を保持させる際にこの書き方が必要になった
     private var _connectionTimer: ConnectionTimer?
 
@@ -247,7 +232,7 @@ public final class MediaChannel {
 
     /**
      初期化します。
-     
+
      - parameter manager: `Sora` オブジェクト
      - parameter configuration: クライアントの設定
      */
@@ -261,10 +246,10 @@ public final class MediaChannel {
         handlers = configuration.mediaChannelHandlers
 
         _connectionTimer = ConnectionTimer(monitors: [
-            .webSocketChannel(signalingChannel.webSocketChannel),
             .signalingChannel(signalingChannel),
-            .peerChannel(_peerChannel!)],
-                                          timeout: configuration.connectionTimeout)
+            .peerChannel(_peerChannel!),
+        ],
+        timeout: configuration.connectionTimeout)
     }
 
     // MARK: - 接続
@@ -278,7 +263,7 @@ public final class MediaChannel {
 
     /**
      サーバーに接続します。
-     
+
      - parameter webRTCConfiguration: WebRTC の設定
      - parameter timeout: タイムアウトまでの秒数
      - parameter handler: 接続試行後に呼ばれるクロージャー
@@ -286,7 +271,8 @@ public final class MediaChannel {
      */
     func connect(webRTCConfiguration: WebRTCConfiguration,
                  timeout: Int = 30,
-                 handler: @escaping (_ error: Error?) -> Void) -> ConnectionTask {
+                 handler: @escaping (_ error: Error?) -> Void) -> ConnectionTask
+    {
         let task = ConnectionTask()
         if state.isConnecting {
             handler(SoraError.connectionBusy(reason:
@@ -297,9 +283,9 @@ public final class MediaChannel {
 
         DispatchQueue.global().async { [weak self] in
             self?.basicConnect(connectionTask: task,
-                              webRTCConfiguration: webRTCConfiguration,
-                              timeout: timeout,
-                              handler: handler)
+                               webRTCConfiguration: webRTCConfiguration,
+                               timeout: timeout,
+                               handler: handler)
         }
         return task
     }
@@ -307,14 +293,15 @@ public final class MediaChannel {
     private func basicConnect(connectionTask: ConnectionTask,
                               webRTCConfiguration: WebRTCConfiguration,
                               timeout: Int,
-                              handler: @escaping (Error?) -> Void) {
+                              handler: @escaping (Error?) -> Void)
+    {
         Logger.debug(type: .mediaChannel, message: "try connecting")
         _handler = handler
         state = .connecting
         connectionStartTime = nil
         connectionTask.peerChannel = peerChannel
 
-        signalingChannel.internalHandlers.onDisconnect = { [weak self] (error, reason) in
+        signalingChannel.internalHandlers.onDisconnect = { [weak self] error, reason in
             guard let weakSelf = self else {
                 return
             }
@@ -324,7 +311,7 @@ public final class MediaChannel {
             connectionTask.complete()
         }
 
-        peerChannel.internalHandlers.onDisconnect = { [weak self] (error, reason) in
+        peerChannel.internalHandlers.onDisconnect = { [weak self] error, reason in
             guard let weakSelf = self else {
                 return
             }
@@ -360,7 +347,7 @@ public final class MediaChannel {
             }
             Logger.debug(type: .mediaChannel, message: "receive signaling")
             switch message {
-            case .notify(let message):
+            case let .notify(message):
                 weakSelf.publisherCount = message.publisherCount
                 weakSelf.subscriberCount = message.subscriberCount
             default:
@@ -398,7 +385,7 @@ public final class MediaChannel {
             weakSelf.handlers.onConnect?(nil)
         }
 
-        self.connectionStartTime = Date()
+        connectionStartTime = Date()
         connectionTimer.run {
             Logger.error(type: .mediaChannel, message: "connection timeout")
             self.internalDisconnect(error: SoraError.connectionTimeout, reason: .signalingFailure)
@@ -407,7 +394,7 @@ public final class MediaChannel {
 
     /**
      接続を解除します。
-     
+
      - parameter error: 接続解除の原因となったエラー
      */
     public func disconnect(error: Error?) {
@@ -445,21 +432,15 @@ public final class MediaChannel {
 }
 
 extension MediaChannel: CustomStringConvertible {
-
     /// :nodoc:
     public var description: String {
-        get {
-            return "MediaChannel(clientId: \(clientId ?? "-"), role: \(configuration.role))"
-        }
+        "MediaChannel(clientId: \(clientId ?? "-"), role: \(configuration.role))"
     }
-
 }
 
 /// :nodoc:
 extension MediaChannel: Equatable {
-
-    public static func ==(lhs: MediaChannel, rhs: MediaChannel) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    public static func == (lhs: MediaChannel, rhs: MediaChannel) -> Bool {
+        ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
-
 }

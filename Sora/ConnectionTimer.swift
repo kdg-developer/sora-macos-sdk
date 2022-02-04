@@ -1,42 +1,32 @@
 import Foundation
 
 enum ConnectionMonitor {
-
-    case webSocketChannel(WebSocketChannel)
     case signalingChannel(SignalingChannel)
     case peerChannel(PeerChannel)
 
     var state: ConnectionState {
-        get {
-            switch self {
-            case .webSocketChannel(let chan):
-                return chan.state
-            case .signalingChannel(let chan):
-                return chan.state
-            case .peerChannel(let chan):
-                return ConnectionState(chan.state)
-            }
+        switch self {
+        case let .signalingChannel(chan):
+            return chan.state
+        case let .peerChannel(chan):
+            return ConnectionState(chan.state)
         }
     }
 
     func disconnect() {
         let error = SoraError.connectionTimeout
         switch self {
-        case .webSocketChannel(let chan):
-            chan.disconnect(error: error)
-        case .signalingChannel(let chan):
+        case let .signalingChannel(chan):
             // タイムアウトはシグナリングのエラーと考える
             chan.disconnect(error: error, reason: .signalingFailure)
-        case .peerChannel(let chan):
+        case let .peerChannel(chan):
             // タイムアウトはシグナリングのエラーと考える
             chan.disconnect(error: error, reason: .signalingFailure)
         }
     }
-
 }
 
 class ConnectionTimer {
-
     public var monitors: [ConnectionMonitor]
     public var timeout: Int
     public var isRunning: Bool = false
@@ -82,5 +72,4 @@ class ConnectionTimer {
         timer?.invalidate()
         isRunning = false
     }
-
 }

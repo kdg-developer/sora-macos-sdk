@@ -5,7 +5,6 @@ import WebRTC
  MediaChannel, SignalingChannel, WebSocketChannel の接続状態を表します。
  */
 public enum ConnectionState {
-
     /// 接続試行中
     case connecting
 
@@ -19,19 +18,15 @@ public enum ConnectionState {
     case disconnected
 
     var isConnecting: Bool {
-        get {
-            return self == .connecting
-        }
+        self == .connecting
     }
 
     var isDisconnected: Bool {
-        get {
-            switch self {
-            case .disconnecting, .disconnected:
-                return true
-            default:
-                return false
-            }
+        switch self {
+        case .disconnecting, .disconnected:
+            return true
+        default:
+            return false
         }
     }
 
@@ -54,7 +49,6 @@ public enum ConnectionState {
  PeerChannel の接続状態を表します。
  */
 enum PeerChannelConnectionState {
-
     case new
     case connecting
     case connected
@@ -79,7 +73,6 @@ enum PeerChannelConnectionState {
             self = .closed
         @unknown default:
             self = .unknown
-            break
         }
     }
 }

@@ -46,12 +46,12 @@ private func updateMetadata(signaling: Signaling, data: Data) -> Signaling {
     } catch {
         // JSON のシリアライズが失敗した場合は、引数として渡された signaling をそのまま返し、処理を継続する
         Logger.error(type: .signaling,
-                  message: "updateMetadata failed. error: \(error.localizedDescription), data: \(data)")
+                     message: "updateMetadata failed. error: \(error.localizedDescription), data: \(data)")
         return signaling
     }
 
     switch signaling {
-    case .offer(var message):
+    case var .offer(message):
         // TODO: if json.keys.contains("key") を if let に書き換えたい
         if json.keys.contains("metadata") {
             message.metadata = json["metadata"]
@@ -60,12 +60,12 @@ private func updateMetadata(signaling: Signaling, data: Data) -> Signaling {
             message.dataChannels = dataChannels
         }
         return .offer(message)
-    case .push(var message):
+    case var .push(message):
         if json.keys.contains("data") {
             message.data = json["data"]
         }
         return .push(message)
-    case .notify(var message):
+    case var .notify(message):
         if json.keys.contains("authn_metadata") {
             message.authnMetadata = json["authn_metadata"]
         }
@@ -91,7 +91,6 @@ private func updateMetadata(signaling: Signaling, data: Data) -> Signaling {
  シグナリングの種別です。
  */
 public enum Signaling {
-
     /// "connect" シグナリング
     case connect(SignalingConnect)
 
@@ -131,6 +130,9 @@ public enum Signaling {
     /// "switch" シグナリング
     case switched(SignalingSwitched)
 
+    /// "redirect" シグナリング
+    case redirect(SignalingRedirect)
+
     /// :nodoc:
     public static func decode(_ data: Data) -> Result<Signaling, Error> {
         do {
@@ -138,7 +140,7 @@ public enum Signaling {
             var signaling = try decoder.decode(Signaling.self, from: data)
             signaling = updateMetadata(signaling: signaling, data: data)
             return .success(signaling)
-        } catch let error {
+        } catch {
             return .failure(error)
         }
     }
@@ -172,16 +174,16 @@ public enum Signaling {
             return "push"
         case .switched:
             return "switched"
+        case .redirect:
+            return "redirect"
         }
     }
-
 }
 
 /**
  サイマルキャストでの映像の種類を表します。
  */
 public enum SimulcastRid {
-
     /// r0
     case r0
 
@@ -190,7 +192,6 @@ public enum SimulcastRid {
 
     /// r2
     case r2
-
 }
 
 /**
@@ -227,18 +228,15 @@ public enum SpotlightRid {
  受信したメタデータを任意のデータ型に変換するには、このデコーダーを使ってください。
  */
 @available(*, unavailable,
-message: "SignalingMetadata を利用して、メタデータをデコードする方法は廃止されました。 Any? を任意の型にキャストしてデコードしてください。")
+           message: "SignalingMetadata を利用して、メタデータをデコードする方法は廃止されました。 Any? を任意の型にキャストしてデコードしてください。")
 public struct SignalingMetadata {
-
     /// シグナリングに含まれるメタデータの JSON デコーダー
     public var decoder: Decoder
-
 }
 
 @available(*, unavailable, renamed: "SignalingNotifyMetadata",
-message: "SignalingClientMetadata は SignalingNotifyMetadata に置き換えられました。")
+           message: "SignalingClientMetadata は SignalingNotifyMetadata に置き換えられました。")
 public struct SignalingClientMetadata {
-
     /// クライアント ID
     public var clientId: String?
 
@@ -247,28 +245,26 @@ public struct SignalingClientMetadata {
 
     /// メタデータ
     public var metadata: SignalingMetadata
-
 }
 
 /**
  シグナリングに含まれる、同チャネルに接続中のクライアントに関するメタデータ (任意のデータ) を表します。
  */
 public struct SignalingNotifyMetadata {
+    /// クライアント ID
+    public var clientId: String?
 
-  /// クライアント ID
-  public var clientId: String?
+    /// 接続 ID
+    public var connectionId: String?
 
-  /// 接続 ID
-  public var connectionId: String?
+    /// シグナリング接続時にクライアントが指定した値
+    public var authnMetadata: Any?
 
-  /// シグナリング接続時にクライアントが指定した値
-  public var authnMetadata: Any?
+    /// Sora の認証ウェブフックの戻り値で指定された値
+    public var authzMetadata: Any?
 
-  /// Sora の認証ウェブフックの戻り値で指定された値
-  public var authzMetadata: Any?
-
-  /// メタデータ
-  public var metadata: Any?
+    /// メタデータ
+    public var metadata: Any?
 }
 
 /**
@@ -276,7 +272,6 @@ public struct SignalingNotifyMetadata {
  このメッセージはシグナリング接続の確立後、最初に送信されます。
  */
 public struct SignalingConnect {
-
     /// ロール
     public var role: SignalingRole
 
@@ -321,7 +316,7 @@ public struct SignalingConnect {
 
     /// スポットライトの対象人数
     @available(*, deprecated, renamed: "spotlightNumber",
-    message: "このプロパティは spotlightNumber に置き換えられました。")
+               message: "このプロパティは spotlightNumber に置き換えられました。")
     public var spotlight: Int? {
         get {
             spotlightNumber
@@ -333,7 +328,7 @@ public struct SignalingConnect {
 
     /// スポットライトの対象人数
     @available(*, deprecated, renamed: "spotlightNumber",
-    message: "このプロパティは spotlightNumber に置き換えられました。")
+               message: "このプロパティは spotlightNumber に置き換えられました。")
     public var activeSpeakerLimit: Int? {
         get {
             spotlightNumber
@@ -373,6 +368,8 @@ public struct SignalingConnect {
     /// DataChannel 経由のシグナリングを有効にした際、 WebSocket の接続が切れても Sora との接続を切断しない
     public var ignoreDisconnectWebSocket: Bool?
 
+    /// type: redicret 受信後の再接続
+    public var redirect: Bool?
 }
 
 /**
@@ -380,12 +377,10 @@ public struct SignalingConnect {
  このメッセージは SDK が "connect" を送信した後に、サーバーから送信されます。
  */
 public struct SignalingOffer {
-
     /**
      クライアントが更新すべき設定を表します。
      */
     public struct Configuration {
-
         /// ICE サーバーの情報のリスト
         public let iceServerInfos: [ICEServerInfo]
 
@@ -400,7 +395,6 @@ public struct SignalingOffer {
      https://w3c.github.io/webrtc-pc/#rtcrtpencodingparameters
      */
     public struct Encoding {
-
         /// エンコーディングの有効・無効
         public let active: Bool
 
@@ -418,22 +412,19 @@ public struct SignalingOffer {
 
         /// RTP エンコーディングに関するパラメーター
         public var rtpEncodingParameters: RTCRtpEncodingParameters {
-            get {
-                let params = RTCRtpEncodingParameters()
-                params.rid = rid
-                if let value = maxBitrate {
-                    params.maxBitrateBps = NSNumber(value: value)
-                }
-                if let value = maxFramerate {
-                    params.maxFramerate = NSNumber(value: value)
-                }
-                if let value = scaleResolutionDownBy {
-                    params.scaleResolutionDownBy = NSNumber(value: value)
-                }
-                return params
+            let params = RTCRtpEncodingParameters()
+            params.rid = rid
+            if let value = maxBitrate {
+                params.maxBitrateBps = NSNumber(value: value)
             }
+            if let value = maxFramerate {
+                params.maxFramerate = NSNumber(value: value)
+            }
+            if let value = scaleResolutionDownBy {
+                params.scaleResolutionDownBy = NSNumber(value: value)
+            }
+            return params
         }
-
     }
 
     /// クライアント ID
@@ -456,44 +447,36 @@ public struct SignalingOffer {
 
     /// データ・チャンネルの設定
     public var dataChannels: [[String: Any]]?
-
 }
 
 /**
  "answer" シグナリングメッセージを表します。
  */
 public struct SignalingAnswer {
-
     /// SDP メッセージ
     public let sdp: String
-
 }
 
 /**
  "candidate" シグナリングメッセージを表します。
  */
 public struct SignalingCandidate {
-
     /// ICE candidate
     public let candidate: ICECandidate
-
 }
 
 /**
  "update" シグナリングメッセージを表します。
  */
 public struct SignalingUpdate {
-
     /// SDP メッセージ
     public let sdp: String
-
 }
 
 /**
  "re-offer" メッセージ
  */
 public struct SignalingReOffer {
-
     /// SDP メッセージ
     public let sdp: String
 }
@@ -502,7 +485,6 @@ public struct SignalingReOffer {
  "re-answer" メッセージ
  */
 public struct SignalingReAnswer {
-
     /// SDP メッセージ
     public let sdp: String
 }
@@ -512,10 +494,8 @@ public struct SignalingReAnswer {
  このメッセージは Sora のプッシュ API を使用して送信されたデータです。
  */
 public struct SignalingPush {
-
     /// プッシュ通知で送信される JSON データ
     public var data: Any? = {}
-
 }
 
 /**
@@ -527,13 +507,20 @@ public struct SignalingSwitched {
 }
 
 /**
+ "redirect" シグナリングメッセージを表します。
+ */
+public struct SignalingRedirect {
+    /// redirect する URL
+    public var location: String
+}
+
+/**
  "notify" シグナリングメッセージで通知されるイベントの種別です。
  詳細は Sora のドキュメントを参照してください。
  廃止されました。
  */
 @available(*, unavailable, message: "SignalingNotifyEventType は廃止されました。")
 public enum SignalingNotifyEventType {
-
     /// "connection.created"
     case connectionCreated
 
@@ -548,7 +535,6 @@ public enum SignalingNotifyEventType {
 
     /// "network.status"
     case networkStatus
-
 }
 
 /// "notify" シグナリングメッセージを表します。
@@ -558,7 +544,6 @@ public enum SignalingNotifyEventType {
 ///
 /// 上記の理由により、この struct では、 eventType 以外のパラメーターを Optional にする必要があります。
 public struct SignalingNotify {
-
     // MARK: イベント情報
 
     /// イベントの種別
@@ -636,80 +621,78 @@ public struct SignalingNotify {
 
 /**
  "notify" シグナリングメッセージのうち、次のイベントを表します。
- 
+
  - `connection.created`
  - `connection.updated`
  - `connection.destroyed`
- 
+
  このメッセージは接続の確立後、チャネルへの接続数に変更があるとサーバーから送信されます。
  廃止されました。
  SignalingNotify を利用してください。
  */
 @available(*, unavailable, message: "SignalingNotifyConnection は廃止されました。  SignalingNotify を利用してください。")
 public struct SignalingNotifyConnection {
+    // MARK: イベント情報
 
-  // MARK: イベント情報
+    /// イベントの種別
+    public var eventType: Any
 
-  /// イベントの種別
-  public var eventType: Any
+    // MARK: 接続情報
 
-  // MARK: 接続情報
+    /// ロール
+    public var role: SignalingRole
 
-  /// ロール
-  public var role: SignalingRole
+    /// クライアント ID
+    public var clientId: String?
 
-  /// クライアント ID
-  public var clientId: String?
+    /// 接続 ID
+    public var connectionId: String?
 
-  /// 接続 ID
-  public var connectionId: String?
+    /// 音声の可否
+    public var audioEnabled: Bool?
 
-  /// 音声の可否
-  public var audioEnabled: Bool?
+    /// 映像の可否
+    public var videoEnabled: Bool?
 
-  /// 映像の可否
-  public var videoEnabled: Bool?
+    /// メタデータ
+    public var metadata: Any?
 
-  /// メタデータ
-  public var metadata: Any?
+    /// シグナリング接続時にクライアントが指定した値
+    public var authnMetadata: Any?
 
-  /// シグナリング接続時にクライアントが指定した値
-  public var authnMetadata: Any?
+    /// Sora の認証ウェブフックの戻り値で指定された値
+    public var authzMetadata: Any?
 
-  /// Sora の認証ウェブフックの戻り値で指定された値
-  public var authzMetadata: Any?
+    /// メタデータのリスト
+    public var metadataList: [SignalingNotifyMetadata]?
 
-  /// メタデータのリスト
-  public var metadataList: [SignalingNotifyMetadata]?
+    // メタデータのリスト
+    public var data: [SignalingNotifyMetadata]?
 
-  // メタデータのリスト
-  public var data: [SignalingNotifyMetadata]?
+    // MARK: 接続状態
 
-  // MARK: 接続状態
+    /// 接続時間 (分)
+    public var connectionTime: Int
 
-  /// 接続時間 (分)
-  public var connectionTime: Int
+    /// 接続中のクライアントの数
+    public var connectionCount: Int
 
-  /// 接続中のクライアントの数
-  public var connectionCount: Int
+    /// 接続中のパブリッシャーの数
+    @available(*, deprecated, message: "このプロパティは channelSendonlyConnections と channelSendrecvConnections に置き換えられました。")
+    public var publisherCount: Int?
 
-  /// 接続中のパブリッシャーの数
-  @available(*, deprecated, message: "このプロパティは channelSendonlyConnections と channelSendrecvConnections に置き換えられました。")
-  public var publisherCount: Int?
+    /// 接続中のサブスクライバーの数
+    @available(*, deprecated, message: "このプロパティは channelRecvonlyConnections と channelSendrecvConnections に置き換えられました。")
+    public var subscriberCount: Int?
 
-  /// 接続中のサブスクライバーの数
-  @available(*, deprecated, message: "このプロパティは channelRecvonlyConnections と channelSendrecvConnections に置き換えられました。")
-  public var subscriberCount: Int?
+    /// 接続中の送信専用接続の数
+    public var channelSendonlyConnections: Int?
 
-  /// 接続中の送信専用接続の数
-  public var channelSendonlyConnections: Int?
+    /// 接続中の受信専用接続の数
+    public var channelRecvonlyConnections: Int?
 
-  /// 接続中の受信専用接続の数
-  public var channelRecvonlyConnections: Int?
-
-  /// 接続中の送受信可能接続の数
-  public var channelSendrecvConnections: Int?
-
+    /// 接続中の送受信可能接続の数
+    public var channelSendrecvConnections: Int?
 }
 
 /**
@@ -719,7 +702,6 @@ public struct SignalingNotifyConnection {
  */
 @available(*, unavailable, message: "SignalingNotifySpotlightChanged は廃止されました。 SignalingNotify を利用してください。")
 public struct SignalingNotifySpotlightChanged {
-
     /// クライアント ID
     public var clientId: String?
 
@@ -737,7 +719,6 @@ public struct SignalingNotifySpotlightChanged {
 
     /// 映像の可否
     public var videoEnabled: Bool?
-
 }
 
 /**
@@ -747,10 +728,8 @@ public struct SignalingNotifySpotlightChanged {
  */
 @available(*, unavailable, message: "SignalingNotifyNetworkStatus は廃止されました。 SignalingNotify を利用してください。")
 public struct SignalingNotifyNetworkStatus {
-
     /// ネットワークの不安定度
     public var unstableLevel: Int
-
 }
 
 /**
@@ -760,10 +739,8 @@ public struct SignalingNotifyNetworkStatus {
  サーバーとの接続が解除されます。
  */
 public struct SignalingPing {
-
     /// :nodoc:
     public var statisticsEnabled: Bool?
-
 }
 
 /**
@@ -779,17 +756,16 @@ public struct SignalingPong {}
  "disconnect" シグナリングメッセージを表します。
  */
 public struct SignalingDisconnect {
-
     /// Sora との接続を切断する理由
     public var reason: String?
 }
 
 // MARK: -
+
 // MARK: Codable
 
 /// :nodoc:
 extension Signaling: Codable {
-
     enum MessageType: String {
         case connect
         case offer
@@ -830,6 +806,8 @@ extension Signaling: Codable {
             self = .reOffer(try SignalingReOffer(from: decoder))
         case "switched":
             self = .switched(try SignalingSwitched(from: decoder))
+        case "redirect":
+            self = .redirect(try SignalingRedirect(from: decoder))
         default:
             throw SoraError.unknownSignalingMessageType(type: type)
         }
@@ -838,34 +816,33 @@ extension Signaling: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case .connect(let message):
+        case let .connect(message):
             try container.encode(MessageType.connect.rawValue, forKey: .type)
             try message.encode(to: encoder)
-        case .offer(let message):
+        case let .offer(message):
             try container.encode(MessageType.offer.rawValue, forKey: .type)
             try message.encode(to: encoder)
-        case .answer(let message):
+        case let .answer(message):
             try container.encode(MessageType.answer.rawValue, forKey: .type)
             try message.encode(to: encoder)
-        case .candidate(let message):
+        case let .candidate(message):
             try container.encode(MessageType.candidate.rawValue, forKey: .type)
             try message.encode(to: encoder)
-        case .update(let message):
+        case let .update(message):
             try container.encode(MessageType.update.rawValue, forKey: .type)
             try message.encode(to: encoder)
-        case .reAnswer(let message):
-            try container.encode(self.typeName(), forKey: .type)
+        case let .reAnswer(message):
+            try container.encode(typeName(), forKey: .type)
             try message.encode(to: encoder)
         case .pong:
             try container.encode(MessageType.pong.rawValue, forKey: .type)
-        case .disconnect(let message):
+        case let .disconnect(message):
             try container.encode(MessageType.disconnect.rawValue, forKey: .type)
             try message.encode(to: encoder)
         default:
             throw SoraError.invalidSignalingMessage
         }
     }
-
 }
 
 private var simulcastRidTable: PairTable<String, SimulcastRid> =
@@ -876,7 +853,6 @@ private var simulcastRidTable: PairTable<String, SimulcastRid> =
 
 /// :nodoc:
 extension SimulcastRid: Codable {
-
     public init(from decoder: Decoder) throws {
         throw SoraError.invalidSignalingMessage
     }
@@ -884,7 +860,6 @@ extension SimulcastRid: Codable {
     public func encode(to encoder: Encoder) throws {
         try simulcastRidTable.encode(self, to: encoder)
     }
-
 }
 
 private var spotlightRidTable: PairTable<String, SpotlightRid> =
@@ -897,7 +872,6 @@ private var spotlightRidTable: PairTable<String, SpotlightRid> =
 
 /// :nodoc:
 extension SpotlightRid: Codable {
-
     public init(from decoder: Decoder) throws {
         throw SoraError.invalidSignalingMessage
     }
@@ -905,7 +879,6 @@ extension SpotlightRid: Codable {
     public func encode(to encoder: Encoder) throws {
         try spotlightRidTable.encode(self, to: encoder)
     }
-
 }
 
 /// :nodoc:
@@ -919,7 +892,6 @@ private var roleTable: PairTable<String, SignalingRole> =
 
 /// :nodoc:
 extension SignalingRole: Codable {
-
     public init(from decoder: Decoder) throws {
         self = try roleTable.decode(from: decoder)
     }
@@ -927,12 +899,10 @@ extension SignalingRole: Codable {
     public func encode(to encoder: Encoder) throws {
         try roleTable.encode(self, to: encoder)
     }
-
 }
 
 /// :nodoc:
 extension SignalingConnect: Codable {
-
     enum CodingKeys: String, CodingKey {
         case role
         case channel_id
@@ -954,6 +924,7 @@ extension SignalingConnect: Codable {
         case environment
         case data_channel_signaling
         case ignore_disconnect_websocket
+        case redirect
     }
 
     enum VideoCodingKeys: String, CodingKey {
@@ -987,6 +958,7 @@ extension SignalingConnect: Codable {
         try container.encodeIfPresent(environment, forKey: .environment)
         try container.encodeIfPresent(dataChannelSignaling, forKey: .data_channel_signaling)
         try container.encodeIfPresent(ignoreDisconnectWebSocket, forKey: .ignore_disconnect_websocket)
+        try container.encodeIfPresent(redirect, forKey: .redirect)
 
         if videoEnabled {
             if videoCodec != .default || videoBitRate != nil {
@@ -1030,28 +1002,22 @@ extension SignalingConnect: Codable {
 
         switch spotlightEnabled {
         case .enabled:
-            if Sora.isSpotlightLegacyEnabled {
-                try container.encodeIfPresent(spotlightNumber, forKey: .spotlight)
-            } else {
-                try container.encode(true, forKey: .spotlight)
-                try container.encodeIfPresent(spotlightNumber, forKey: .spotlight_number)
-                if spotlightFocusRid != .unspecified {
-                    try container.encode(spotlightFocusRid, forKey: .spotlight_focus_rid)
-                }
-                if spotlightUnfocusRid != .unspecified {
-                    try container.encode(spotlightUnfocusRid, forKey: .spotlight_unfocus_rid)
-                }
+            try container.encode(true, forKey: .spotlight)
+            try container.encodeIfPresent(spotlightNumber, forKey: .spotlight_number)
+            if spotlightFocusRid != .unspecified {
+                try container.encode(spotlightFocusRid, forKey: .spotlight_focus_rid)
+            }
+            if spotlightUnfocusRid != .unspecified {
+                try container.encode(spotlightUnfocusRid, forKey: .spotlight_unfocus_rid)
             }
         case .disabled:
             break
         }
     }
-
 }
 
 /// :nodoc:
 extension SignalingOffer.Configuration: Codable {
-
     enum CodingKeys: String, CodingKey {
         case iceServers
         case iceTransportPolicy
@@ -1068,12 +1034,10 @@ extension SignalingOffer.Configuration: Codable {
     public func encode(to encoder: Encoder) throws {
         throw SoraError.invalidSignalingMessage
     }
-
 }
 
 /// :nodoc:
 extension SignalingOffer.Encoding: Codable {
-
     enum CodingKeys: String, CodingKey {
         case rid
         case active
@@ -1089,18 +1053,16 @@ extension SignalingOffer.Encoding: Codable {
         maxBitrate = try container.decodeIfPresent(Int.self, forKey: .maxBitrate)
         maxFramerate = try container.decodeIfPresent(Double.self, forKey: .maxFramerate)
         scaleResolutionDownBy = try container.decodeIfPresent(Double.self,
-                forKey: .scaleResolutionDownBy)
+                                                              forKey: .scaleResolutionDownBy)
     }
 
     public func encode(to encoder: Encoder) throws {
         throw SoraError.invalidSignalingMessage
     }
-
 }
 
 /// :nodoc:
 extension SignalingOffer: Codable {
-
     enum CodingKeys: String, CodingKey {
         case client_id
         case connection_id
@@ -1125,12 +1087,10 @@ extension SignalingOffer: Codable {
     public func encode(to encoder: Encoder) throws {
         throw SoraError.invalidSignalingMessage
     }
-
 }
 
 /// :nodoc:
 extension SignalingAnswer: Codable {
-
     enum CodingKeys: String, CodingKey {
         case sdp
     }
@@ -1143,12 +1103,10 @@ extension SignalingAnswer: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sdp, forKey: .sdp)
     }
-
 }
 
 /// :nodoc:
 extension SignalingCandidate: Codable {
-
     enum CodingKeys: String, CodingKey {
         case candidate
     }
@@ -1161,12 +1119,10 @@ extension SignalingCandidate: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(candidate, forKey: .candidate)
     }
-
 }
 
 /// :nodoc:
 extension SignalingUpdate: Codable {
-
     enum CodingKeys: String, CodingKey {
         case sdp
     }
@@ -1180,12 +1136,10 @@ extension SignalingUpdate: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sdp, forKey: .sdp)
     }
-
 }
 
 /// :nodoc:
 extension SignalingReOffer: Codable {
-
     enum CodingKeys: String, CodingKey {
         case sdp
     }
@@ -1199,12 +1153,10 @@ extension SignalingReOffer: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sdp, forKey: .sdp)
     }
-
 }
 
 /// :nodoc:
 extension SignalingReAnswer: Codable {
-
     enum CodingKeys: String, CodingKey {
         case sdp
     }
@@ -1222,18 +1174,15 @@ extension SignalingReAnswer: Codable {
 
 /// :nodoc:
 extension SignalingPush: Codable {
-
     public init(from decoder: Decoder) throws {}
 
     public func encode(to encoder: Encoder) throws {
         throw SoraError.invalidSignalingMessage
     }
-
 }
 
 /// :nodoc:
 extension SignalingNotify: Codable {
-
     enum CodingKeys: String, CodingKey {
         case event_type
         case role
@@ -1290,12 +1239,10 @@ extension SignalingNotify: Codable {
     public func encode(to encoder: Encoder) throws {
         throw SoraError.invalidSignalingMessage
     }
-
 }
 
 /// :nodoc:
 extension SignalingPing: Codable {
-
     enum CodingKeys: String, CodingKey {
         case stats
     }
@@ -1308,12 +1255,10 @@ extension SignalingPing: Codable {
     public func encode(to encoder: Encoder) throws {
         throw SoraError.invalidSignalingMessage
     }
-
 }
 
 /// :nodoc:
 extension SignalingPong: Codable {
-
     public init(from decoder: Decoder) throws {
         throw SoraError.invalidSignalingMessage
     }
@@ -1321,12 +1266,10 @@ extension SignalingPong: Codable {
     public func encode(to encoder: Encoder) throws {
         // エンコードするプロパティはない
     }
-
 }
 
 /// :nodoc:
 extension SignalingDisconnect: Codable {
-
     enum CodingKeys: String, CodingKey {
         case reason
     }
@@ -1339,11 +1282,9 @@ extension SignalingDisconnect: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(reason, forKey: .reason)
     }
-
 }
 
 extension SignalingSwitched: Decodable {
-
     enum CodingKeys: String, CodingKey {
         case ignore_disconnect_websocket
     }
@@ -1352,5 +1293,16 @@ extension SignalingSwitched: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         ignoreDisconnectWebSocket = try container.decode(Bool.self, forKey: .ignore_disconnect_websocket)
     }
+}
 
+/// :nodoc:
+extension SignalingRedirect: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case location
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        location = try container.decode(String.self, forKey: .location)
+    }
 }

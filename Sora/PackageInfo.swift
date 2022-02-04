@@ -1,29 +1,29 @@
 /// :nodoc:
-public struct SDKInfo {
+public enum SDKInfo {
     // Sora macOS SDK のバージョンを定義する
-    public static let version = "2021.3.1"
+    public static let version = "2022.1.0"
 }
 
 /**
  WebRTC フレームワークの情報を表します。
  */
-public struct WebRTCInfo {
+public enum WebRTCInfo {
     /// WebRTC フレームワークのバージョン
-    public static let version = "M95"
+    public static let version = "M98"
 
     /// WebRTC フレームワークのコミットポジション
-    public static let commitPosition = "3"
+    public static let commitPosition = "0"
 
     /// WebRTC フレームワークのメンテナンスバージョン
     public static let maintenanceVersion = "0"
 
     /// WebRTC フレームワークのソースコードのリビジョン
-    public static let revision = "25e3fd53a79bfdb2bd647ee3a199eb9c3a71d271"
+    public static let revision = "a6b138d6b4ef3a5b2c87f899b67f3b5c8dd3c002"
 
     /// WebRTC フレームワークのソースコードのリビジョン (短縮版)
     public static var shortRevision: String {
-        return String(revision[revision.startIndex..<revision.index(
-                                revision.startIndex, offsetBy: 7)])
+        String(revision[revision.startIndex ..< revision.index(
+            revision.startIndex, offsetBy: 7
+        )])
     }
-
 }

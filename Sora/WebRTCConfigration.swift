@@ -5,7 +5,6 @@ import WebRTC
  メディア制約を表します。
  */
 public struct MediaConstraints {
-
     /// 必須の制約
     public var mandatory: [String: String] = [:]
 
@@ -15,44 +14,36 @@ public struct MediaConstraints {
     // MARK: - ネイティブ
 
     var nativeValue: RTCMediaConstraints {
-        get {
-            return RTCMediaConstraints(mandatoryConstraints: mandatory,
-                                       optionalConstraints: optional)
-        }
+        RTCMediaConstraints(mandatoryConstraints: mandatory,
+                            optionalConstraints: optional)
     }
-
 }
 
 /**
  SDP でのマルチストリームの記述方式です。
  */
 public enum SDPSemantics {
-
     /// Unified Plan
     case unifiedPlan
 
     // MARK: - ネイティブ
 
     var nativeValue: RTCSdpSemantics {
-        get {
-            switch self {
-            case .unifiedPlan:
-                return RTCSdpSemantics.unifiedPlan
-            }
+        switch self {
+        case .unifiedPlan:
+            return RTCSdpSemantics.unifiedPlan
         }
     }
-
 }
 
 /**
  WebRTC に関する設定です。
  */
 public struct WebRTCConfiguration {
-
     // MARK: メディア制約に関する設定
 
     /// メディア制約
-    public var constraints: MediaConstraints = MediaConstraints()
+    public var constraints = MediaConstraints()
 
     // MARK: ICE サーバーに関する設定
 
@@ -79,27 +70,22 @@ public struct WebRTCConfiguration {
     // MARK: - ネイティブ
 
     var nativeValue: RTCConfiguration {
-        get {
-            let config = RTCConfiguration()
-            config.iceServers = iceServerInfos.map { info in
-                return info.nativeValue
-            }
-            config.iceTransportPolicy = iceTransportPolicy.nativeValue
-            config.sdpSemantics = sdpSemantics.nativeValue
-
-            // AES-GCM を有効にする
-            config.cryptoOptions = RTCCryptoOptions(srtpEnableGcmCryptoSuites: true,
-                                                    srtpEnableAes128Sha1_32CryptoCipher: false,
-                                                    srtpEnableEncryptedRtpHeaderExtensions: false,
-                                                    sframeRequireFrameEncryption: false)
-            return config
+        let config = RTCConfiguration()
+        config.iceServers = iceServerInfos.map { info in
+            info.nativeValue
         }
+        config.iceTransportPolicy = iceTransportPolicy.nativeValue
+        config.sdpSemantics = sdpSemantics.nativeValue
+
+        // AES-GCM を有効にする
+        config.cryptoOptions = RTCCryptoOptions(srtpEnableGcmCryptoSuites: true,
+                                                srtpEnableAes128Sha1_32CryptoCipher: false,
+                                                srtpEnableEncryptedRtpHeaderExtensions: false,
+                                                sframeRequireFrameEncryption: false)
+        return config
     }
 
-    var nativeConstraints: RTCMediaConstraints {
-        get { return constraints.nativeValue }
-    }
-
+    var nativeConstraints: RTCMediaConstraints { constraints.nativeValue }
 }
 
 private var sdpSemanticsTable: PairTable<String, SDPSemantics> =
@@ -108,7 +94,6 @@ private var sdpSemanticsTable: PairTable<String, SDPSemantics> =
 
 /// :nodoc:
 extension SDPSemantics: Codable {
-
     public init(from decoder: Decoder) throws {
         self = try sdpSemanticsTable.decode(from: decoder)
     }
@@ -116,12 +101,10 @@ extension SDPSemantics: Codable {
     public func encode(to encoder: Encoder) throws {
         try sdpSemanticsTable.encode(self, to: encoder)
     }
-
 }
 
 /// :nodoc:
 extension MediaConstraints: Codable {
-
     enum CodingKeys: String, CodingKey {
         case mandatory
         case optional
@@ -140,12 +123,10 @@ extension MediaConstraints: Codable {
         try container.encode(mandatory, forKey: .mandatory)
         try container.encode(optional, forKey: .optional)
     }
-
 }
 
 /// :nodoc:
 extension WebRTCConfiguration: Codable {
-
     enum CodingKeys: String, CodingKey {
         case constraints
         case iceServerInfos
@@ -173,5 +154,4 @@ extension WebRTCConfiguration: Codable {
         try container.encode(iceTransportPolicy, forKey: .iceTransportPolicy)
         try container.encode(sdpSemantics, forKey: .sdpSemantics)
     }
-
 }

@@ -1,7 +1,6 @@
 import Foundation
 
 public class MediaChannelConfiguration {
-
     public static var maxBitRate = 5000
 
     public var connectionMetadata: String?
@@ -13,8 +12,7 @@ public class MediaChannelConfiguration {
     public var audioEnabled: Bool = true
     public var snapshotEnabled: Bool = false
 
-    // TODO
+    // TODO:
 
     // TODO: RTCConfiguration
-
 }

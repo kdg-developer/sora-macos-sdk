@@ -8,7 +8,6 @@ private var tlsSecurityPolicyTable: [TLSSecurityPolicy: RTCTlsCertPolicy] =
  TLS のセキュリティポリシーを表します。
  */
 public enum TLSSecurityPolicy {
-
     /// サーバー証明書を確認します。
     case secure
 
@@ -16,9 +15,6 @@ public enum TLSSecurityPolicy {
     case insecure
 
     var nativeValue: RTCTlsCertPolicy {
-        get {
-            return tlsSecurityPolicyTable[self]!
-        }
+        tlsSecurityPolicyTable[self]!
     }
-
 }

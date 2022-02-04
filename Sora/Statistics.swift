@@ -3,7 +3,6 @@ import WebRTC
 
 /// :nodoc:
 public class Statistics {
-
     public var timestamp: CFTimeInterval
     public var entries: [StatisticsEntry] = []
 
@@ -27,12 +26,10 @@ public class Statistics {
         }
         return json
     }
-
 }
 
 /// :nodoc:
 public class StatisticsEntry {
-
     public var id: String
     public var type: String
     public var timestamp: CFTimeInterval
@@ -44,5 +41,4 @@ public class StatisticsEntry {
         timestamp = statistics.timestamp_us
         values = statistics.values
     }
-
 }

@@ -5,8 +5,5 @@ platform :osx, '10.15'
 
 target 'Sora' do
   use_frameworks!
-  pod 'WebRTC', '97.4692.4.0.2'
-  pod 'Starscream', '4.0.4'
-  pod 'SwiftLint'
-  pod 'SwiftFormat/CLI'
+  pod 'WebRTC', '98.4758.0.0.1'
 end

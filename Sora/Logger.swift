@@ -21,7 +21,6 @@ public enum LogType {
 
 /// :nodoc:
 extension LogType: CustomStringConvertible {
-
     public var description: String {
         switch self {
         case .sora:
@@ -48,7 +47,7 @@ extension LogType: CustomStringConvertible {
             return "VideoRenderer"
         case .videoView:
             return "VideoView"
-        case .user(let name):
+        case let .user(name):
             return name
         case .configurationViewController:
             return "ConfigurationViewController"
@@ -56,7 +55,6 @@ extension LogType: CustomStringConvertible {
             return "DataChannel"
         }
     }
-
 }
 
 // MARK: -
@@ -65,7 +63,7 @@ extension LogType: CustomStringConvertible {
  ログレベルです。
  上から下に向かってログの重要度が下がり、詳細度が上がります。
  `off` はログを出力しません。
- 
+
  6. `fatal`
  5. `error`
  4. `warn`
@@ -73,10 +71,9 @@ extension LogType: CustomStringConvertible {
  2. `debug`
  1. `trace`
  0. `off`
- 
+
  */
 public enum LogLevel {
-
     /// 致命的なエラー情報
     case fatal
 
@@ -97,12 +94,10 @@ public enum LogLevel {
 
     /// ログを出力しない
     case off
-
 }
 
 /// :nodoc:
 extension LogLevel {
-
     var value: Int {
         switch self {
         case .fatal:
@@ -121,12 +116,10 @@ extension LogLevel {
             return 0
         }
     }
-
 }
 
 /// :nodoc:
 extension LogLevel: CustomStringConvertible {
-
     public var description: String {
         switch self {
         case .fatal:
@@ -145,14 +138,12 @@ extension LogLevel: CustomStringConvertible {
             return "OFF"
         }
     }
-
 }
 
 // MARK: -
 
 /// :nodoc:
 public struct Log {
-
     public let level: LogLevel
     public let type: LogType
     public let timestamp: Date
@@ -161,15 +152,13 @@ public struct Log {
     init(level: LogLevel, type: LogType, message: String) {
         self.level = level
         self.type = type
-        self.timestamp = Date()
+        timestamp = Date()
         self.message = message
     }
-
 }
 
 /// :nodoc:
 extension Log: CustomStringConvertible {
-
     private static let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -177,20 +166,18 @@ extension Log: CustomStringConvertible {
     }()
 
     public var description: String {
-        return String(format: "%@ %@ %@: %@",
-                      Log.formatter.string(from: timestamp),
-                      type.description,
-                      level.description,
-                      message)
+        String(format: "%@ %@ %@: %@",
+               Log.formatter.string(from: timestamp),
+               type.description,
+               level.description,
+               message)
     }
-
 }
 
 // MARK: -
 
 /// :nodoc:
 public final class Logger {
-
     public enum Group {
         case channels
         case connectionTimer
@@ -200,7 +187,7 @@ public final class Logger {
         case user
     }
 
-    public static var shared: Logger = Logger()
+    public static var shared = Logger()
 
     public var onOutputHandler: ((Log) -> Void)?
 
@@ -301,10 +288,9 @@ public final class Logger {
         }
         if !out { return }
 
-        if 0 < level.value && level.value <= log.level.value {
+        if level.value > 0, level.value <= log.level.value {
             onOutputHandler?(log)
             print(log.description)
         }
     }
-
 }

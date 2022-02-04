@@ -8,8 +8,7 @@ import zlib
 //
 // TODO: iOS 12 のサポートが不要になれば、 Compression Framework の関数を、 NSData の compressed(using), decompressed(using:) に書き換えることができる
 // それに伴い、処理に必要なバッファーのサイズを指定する必要もなくなる
-private class ZLibUtil {
-
+private enum ZLibUtil {
     static func zip(_ input: Data) -> Data? {
         if input.isEmpty {
             return nil
@@ -21,7 +20,6 @@ private class ZLibUtil {
         // https://www.rfc-editor.org/rfc/rfc8260.html
         let bufferSize = 262_144
         let destinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-
         defer {
             destinationBuffer.deallocate()
         }
@@ -36,7 +34,7 @@ private class ZLibUtil {
         }
 
         var zipped = Data(capacity: size + 6) // ヘッダー: 2バイト, チェックサム: 4バイト
-        zipped.append(contentsOf: [0x78, 0x5e]) // ヘッダーを追加
+        zipped.append(contentsOf: [0x78, 0x5E]) // ヘッダーを追加
         zipped.append(destinationBuffer, count: size)
 
         let checksum = input.withUnsafeBytes { (p: UnsafeRawBufferPointer) -> UInt32 in
@@ -109,7 +107,6 @@ extension RTCDataChannelState: CustomStringConvertible {
 }
 
 class BasicDataChannelDelegate: NSObject, RTCDataChannelDelegate {
-
     let compress: Bool
     weak var peerChannel: PeerChannel?
     weak var mediaChannel: MediaChannel?
@@ -163,11 +160,11 @@ class BasicDataChannelDelegate: NSObject, RTCDataChannelDelegate {
 
         switch dataChannel.label {
         case "stats":
-            peerChannel.context.nativeChannel.statistics {
+            peerChannel.nativeChannel?.statistics {
                 // NOTE: stats の型を Signaling.swift に定義していない
                 let reports = Statistics(contentsOf: $0).jsonObject
                 let json: [String: Any] = ["type": "stats",
-                                            "reports": reports]
+                                           "reports": reports]
 
                 var data: Data?
                 do {
@@ -179,7 +176,7 @@ class BasicDataChannelDelegate: NSObject, RTCDataChannelDelegate {
                 if let data = data {
                     let ok = dc.send(data)
                     if !ok {
-                            Logger.error(type: .dataChannel, message: "failed to send stats data over DataChannel")
+                        Logger.error(type: .dataChannel, message: "failed to send stats data over DataChannel")
                     }
                 }
             }
@@ -189,7 +186,7 @@ class BasicDataChannelDelegate: NSObject, RTCDataChannelDelegate {
         case "signaling":
             do {
                 let reOffer = try JSONDecoder().decode(SignalingReOffer.self, from: data)
-                peerChannel.context.createAndSendReAnswerOnDataChannel(forReOffer: reOffer.sdp)
+                peerChannel.createAndSendReAnswerOnDataChannel(forReOffer: reOffer.sdp)
             } catch {
                 Logger.error(type: .dataChannel, message: "failed to decode SignalingReOffer")
             }
@@ -206,23 +203,22 @@ class BasicDataChannelDelegate: NSObject, RTCDataChannelDelegate {
 }
 
 class DataChannel {
-
     let native: RTCDataChannel
     let delegate: BasicDataChannelDelegate
 
     init(dataChannel: RTCDataChannel, compress: Bool, mediaChannel: MediaChannel?, peerChannel: PeerChannel?) {
         Logger.info(type: .dataChannel, message: "initialize DataChannel: label => \(dataChannel.label), compress => \(compress)")
         native = dataChannel
-        self.delegate = BasicDataChannelDelegate(compress: compress, mediaChannel: mediaChannel, peerChannel: peerChannel)
-        native.delegate = self.delegate
+        delegate = BasicDataChannelDelegate(compress: compress, mediaChannel: mediaChannel, peerChannel: peerChannel)
+        native.delegate = delegate
     }
 
     var label: String {
-        return native.label
+        native.label
     }
 
     var compress: Bool {
-        return delegate.compress
+        delegate.compress
     }
 
     func send(_ data: Data) -> Bool {

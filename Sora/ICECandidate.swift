@@ -5,15 +5,14 @@ import WebRTC
  ICE Candidate を表します。
  */
 public final class ICECandidate: Equatable {
-
     // MARK: 比較
 
     /**
      オブジェクト同士を比較します。
      双方の URL と SDP 文字列が等しければ ``true`` を返します。
      */
-    public static func ==(lhs: ICECandidate, rhs: ICECandidate) -> Bool {
-        return lhs.url == rhs.url && lhs.sdp == rhs.sdp
+    public static func == (lhs: ICECandidate, rhs: ICECandidate) -> Bool {
+        lhs.url == rhs.url && lhs.sdp == rhs.sdp
     }
 
     // MARK: プロパティ
@@ -34,16 +33,14 @@ public final class ICECandidate: Equatable {
 
     init(nativeICECandidate: RTCIceCandidate) {
         if let urlStr = nativeICECandidate.serverUrl {
-            self.url = URL(string: urlStr)
+            url = URL(string: urlStr)
         }
         sdp = nativeICECandidate.sdp
     }
-
 }
 
 /// :nodoc:
 extension ICECandidate: Codable {
-
     public convenience init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let sdp = try container.decode(String.self)
@@ -54,5 +51,4 @@ extension ICECandidate: Codable {
         var container = encoder.singleValueContainer()
         try container.encode(sdp)
     }
-
 }

@@ -10,7 +10,6 @@ private let descriptionTable: PairTable<String, AudioCodec> =
  音声コーデックを表します。
  */
 public enum AudioCodec {
-
     /**
      サーバーが指定するデフォルトのコーデック。
      現在のデフォルトのコーデックは Opus です。
@@ -22,21 +21,17 @@ public enum AudioCodec {
 
     /// PCMU
     case pcmu
-
 }
 
 extension AudioCodec: CustomStringConvertible {
-
     /// 文字列表現を返します。
     public var description: String {
-        return descriptionTable.left(other: self)!
+        descriptionTable.left(other: self)!
     }
-
 }
 
 /// :nodoc:
 extension AudioCodec: Codable {
-
     public init(from decoder: Decoder) throws {
         self = try descriptionTable.decode(from: decoder)
     }
@@ -44,5 +39,5 @@ extension AudioCodec: Codable {
     public func encode(to encoder: Encoder) throws {
         try descriptionTable.encode(self, to: encoder)
     }
-
 }
+
