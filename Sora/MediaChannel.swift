@@ -182,7 +182,7 @@ public final class MediaChannel {
     public var webSocketChannel: Any?
 
     /// ピアチャネル
-    var peerChannel: PeerChannel {
+    public var peerChannel: PeerChannel {
         _peerChannel!
     }
 

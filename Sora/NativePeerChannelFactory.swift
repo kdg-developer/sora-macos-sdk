@@ -30,9 +30,9 @@ class WrapperVideoEncoderFactory: NSObject, RTCVideoEncoderFactory {
     }
 }
 
-class NativePeerChannelFactory {
+public class NativePeerChannelFactory {
 
-    var nativeFactory: RTCPeerConnectionFactory
+    public var nativeFactory: RTCPeerConnectionFactory
 
     init(_ audioModule: RTCAudioDeviceModule?) {
         Logger.debug(type: .peerChannel, message: "create native peer channel factory")
@@ -95,7 +95,7 @@ class NativePeerChannelFactory {
         let audioSource = nativeFactory.audioSource(with: constraints)
         return nativeFactory.audioTrack(with: audioSource, trackId: trackId)
     }
-
+  
     func createNativeSenderStream(streamId: String,
                                   videoTrackId: String?,
                                   audioTrackId: String?,

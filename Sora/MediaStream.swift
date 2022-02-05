@@ -106,6 +106,8 @@ public protocol MediaStream: AnyObject {
      ストリームの終了処理を行います。
      */
     func terminate()
+  
+    var nativeStream: RTCMediaStream { get }
 }
 
 class BasicMediaStream: MediaStream {

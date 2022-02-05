@@ -40,7 +40,7 @@ final class PeerChannelInternalHandlers {
     public init() {}
 }
 
-class PeerChannel: NSObject, RTCPeerConnectionDelegate {
+public class PeerChannel: NSObject, RTCPeerConnectionDelegate {
     final class Lock {
         weak var context: PeerChannel?
         var count: Int = 0
@@ -107,9 +107,9 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
         return PeerChannelConnectionState(nativeChannel.connectionState)
     }
 
-    var nativeFactory: NativePeerChannelFactory
+    public var nativeFactory: NativePeerChannelFactory
   
-    var nativeChannel: RTCPeerConnection?
+    public var nativeChannel: RTCPeerConnection?
 
     var webRTCConfiguration: WebRTCConfiguration
     var clientId: String?
@@ -888,14 +888,14 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
 
     // MARK: - RTCPeerConnectionDelegate
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+    public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didChange stateChanged: RTCSignalingState)
     {
         Logger.debug(type: .peerChannel,
                      message: "signaling state: \(stateChanged)")
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+    public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didAdd stream: RTCMediaStream)
     {
         Logger.debug(type: .peerChannel,
@@ -923,7 +923,7 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
         add(stream: stream)
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+    public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didRemove stream: RTCMediaStream)
     {
         Logger.debug(type: .peerChannel,
@@ -931,25 +931,25 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
         remove(streamId: stream.streamId)
     }
 
-    func peerConnectionShouldNegotiate(_ nativePeerConnection: RTCPeerConnection) {
+    public func peerConnectionShouldNegotiate(_ nativePeerConnection: RTCPeerConnection) {
         Logger.debug(type: .peerChannel, message: "required negatiation")
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+    public  func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didChange newState: RTCIceConnectionState)
     {
         Logger.debug(type: .peerChannel,
                      message: "ICE connection state: \(newState)")
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+  public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didChange newState: RTCIceGatheringState)
     {
         Logger.debug(type: .peerChannel,
                      message: "ICE gathering state: \(newState)")
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection,
+  public func peerConnection(_ peerConnection: RTCPeerConnection,
                         didChange newState: RTCPeerConnectionState)
     {
         Logger.debug(type: .peerChannel,
@@ -974,7 +974,7 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
         }
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+  public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didGenerate candidate: RTCIceCandidate)
     {
         Logger.debug(type: .peerChannel,
@@ -985,7 +985,7 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
         signalingChannel.send(message: message)
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+  public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didRemove candidates: [RTCIceCandidate])
     {
         Logger.debug(type: .peerChannel,
@@ -1005,7 +1005,7 @@ class PeerChannel: NSObject, RTCPeerConnectionDelegate {
         }
     }
 
-    func peerConnection(_ nativePeerConnection: RTCPeerConnection,
+  public func peerConnection(_ nativePeerConnection: RTCPeerConnection,
                         didOpen dataChannel: RTCDataChannel)
     {
         let label = dataChannel.label
