@@ -2,6 +2,7 @@ Pod::Spec.new do |s|
   s.name         = "Sora"
   s.version      = "2022.1.0"
   s.summary      = "Sora macOS SDK"
+  s.homepage     = "https://github.com/soudegesu/sora-macos-sdk"
   s.description  = <<-DESC
                    A library to develop Sora client applications.
                    DESC
