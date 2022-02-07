@@ -91,6 +91,12 @@ public protocol MediaStream: AnyObject {
     /// 映像レンダラー。
     var videoRenderer: VideoRenderer? { get set }
 
+    var nativeVideoTrack: RTCVideoTrack? { get }
+
+    var nativeVideoSource: RTCVideoSource? { get }
+
+    var nativeAudioTrack: RTCAudioTrack? { get }
+
     /**
      映像フレームをサーバーに送信します。
      送信される映像フレームは映像フィルターを通して加工されます。
