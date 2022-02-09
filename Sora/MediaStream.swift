@@ -99,6 +99,8 @@ public protocol MediaStream: AnyObject {
 
     var nativeAudioTrack: RTCAudioTrack? { get }
 
+    var nativeFactory: RTCPeerConnectionFactory { get }
+
     /**
      映像フレームをサーバーに送信します。
      送信される映像フレームは映像フィルターを通して加工されます。
@@ -181,6 +183,10 @@ class BasicMediaStream: MediaStream {
 
     var nativeAudioTrack: RTCAudioTrack? {
         nativeStream.audioTracks.first
+    }
+
+    var nativeFactory: RTCPeerConnectionFactory {
+      peerChannel.nativeFactory.nativeFactory
     }
 
     var videoEnabled: Bool {
