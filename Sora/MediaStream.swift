@@ -91,6 +91,8 @@ public protocol MediaStream: AnyObject {
     /// 映像レンダラー。
     var videoRenderer: VideoRenderer? { get set }
 
+    var nativeStream: RTCMediaStream { get }
+
     var nativeVideoTrack: RTCVideoTrack? { get }
 
     var nativeVideoSource: RTCVideoSource? { get }
