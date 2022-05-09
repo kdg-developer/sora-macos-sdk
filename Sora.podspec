@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sora"
-  s.version      = "2022.1.3"
+  s.version      = "2022.1.4"
   s.summary      = "Sora macOS SDK"
   s.homepage     = "https://github.com/soudegesu/sora-macos-sdk"
   s.description  = <<-DESC
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   }
   s.source_files  = "Sora/**/*.swift"
   s.resources = []
-  s.dependency "WebRTC", '101.4951.5.1.0'
+  s.dependency "WebRTC", '101.4951.5.1.1'
   s.pod_target_xcconfig = {
     'ARCHS' => 'arm64 x86_64',
     'ARCHS[config=Debug]' => '$(ARCHS_STANDARD)'
