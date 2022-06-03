@@ -1,4 +1,4 @@
-source 'https://github.com/soudegesu/sora-macos-sdk-specs.git'
+source 'https://github.com/kdg-developer/sora-macos-sdk-specs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
 platform :osx, '10.15'
